@@ -1,0 +1,49 @@
+{
+  "version": "traffic-sources-v1",
+  "sources": [
+    {
+      "id": "who-seat-belts",
+      "topic": "seat_belts",
+      "title": "Road traffic injuries",
+      "publisher": "World Health Organization",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+      "section": "Non-use of motorcycle helmets, seat-belts and child restraints",
+      "checked_on": "2026-10-13",
+      "keywords": ["seat belt", "seatbelt", "seat-belt", "buckle", "حزام", "احزمة", "أحزمة"],
+      "facts": ["Wearing a seat belt can reduce the risk of death for people travelling in vehicles. It does not guarantee safety."]
+    },
+    {
+      "id": "who-speeding",
+      "topic": "speeding",
+      "title": "Road traffic injuries",
+      "publisher": "World Health Organization",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+      "section": "Speeding",
+      "checked_on": "2026-10-13",
+      "keywords": ["speed", "سرعة", "سرعه", "السرعة", "السرعه"],
+      "facts": ["Higher driving speeds are associated with a greater likelihood of crashes and more severe crash consequences."]
+    },
+    {
+      "id": "who-distracted-driving",
+      "topic": "distracted_driving",
+      "title": "Road traffic injuries",
+      "publisher": "World Health Organization",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+      "section": "Distracted driving",
+      "checked_on": "2026-10-13",
+      "keywords": ["phone", "texting", "distract", "mobile", "موبايل", "هاتف", "تليفون", "تشتت"],
+      "facts": ["Using a mobile phone while driving can slow reactions and make lane control and following-distance management harder."]
+    },
+    {
+      "id": "who-road-safety-general",
+      "topic": "general",
+      "title": "Road traffic injuries",
+      "publisher": "World Health Organization",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+      "section": "Prevention",
+      "checked_on": "2026-10-13",
+      "keywords": [],
+      "facts": ["Road safety requires coordinated attention to roads, vehicles, and road users. Raising public awareness is one part of prevention."]
+    }
+  ]
+}
