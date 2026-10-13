@@ -1,0 +1,358 @@
+{
+  "run_id": "20261013T181946294622Z",
+  "mode": "live",
+  "configured_model": "gemini-3.5-flash-lite",
+  "quality_review": "pending; technical checks are not quality scores",
+  "cases": [
+    {
+      "case_id": "seat-belts",
+      "inputs": {
+        "case_id": "seat-belts",
+        "campaign": {
+          "title": "حزامك أمانك في كل مشوار",
+          "objective": "تشجيع السواقين والركاب على ربط حزام الأمان قبل كل مشوار",
+          "language": "both"
+        },
+        "request": {
+          "audience": "السواقين والركاب في مصر",
+          "tone": "informative"
+        },
+        "expected_source_ids": [
+          "who-seat-belts"
+        ]
+      },
+      "technical_checks": "passed",
+      "latency_seconds": 86.34,
+      "http_status": 201,
+      "response": {
+        "campaign_id": 13,
+        "contents": [
+          {
+            "id": 17,
+            "language": "arabic",
+            "content_type": "text_package",
+            "review_status": "draft",
+            "content": {
+              "headline": "ربط حزام الأمان بيحمي حياتك على الطريق",
+              "slogan": "حزامك أمانك في كل مشوار",
+              "awareness_message": "سواء كنت سايق أو راكب، ربط حزام الأمان بيقلل من مخاطر الإصابات الخطيرة وقت الحوادث. افتكر دايماً إن الحفاظ على سلامتك وسلامة اللي معاك بيبدأ بخطوة بسيطة قبل ما تحرك العربية. اربط حزامك عشان توصل بالسلامة.",
+              "social_caption": "الحفاظ على السلامة على الطريق مسؤولية الكل. اربط حزام الأمان في كل مشوار وحافظ على حياتك وحياة أحبابك.",
+              "call_to_action": "اربط الحزام قبل ما تتحرك"
+            },
+            "campaign_id": 13,
+            "generation_id": "d007dfb1-9253-4e09-87dd-658d64063932",
+            "provider": "gemini",
+            "model": "gemini-3.5-flash-lite",
+            "prompt_version": "traffic-text-v2-sourced",
+            "input_snapshot": {
+              "title": "حزامك أمانك في كل مشوار",
+              "objective": "تشجيع السواقين والركاب على ربط حزام الأمان قبل كل مشوار",
+              "domain": "traffic_safety",
+              "language": "both",
+              "audience": "السواقين والركاب في مصر",
+              "tone": "informative",
+              "arabic_dialect": "egyptian"
+            },
+            "source_references": [
+              {
+                "id": "who-seat-belts",
+                "topic": "seat_belts",
+                "title": "Road traffic injuries",
+                "publisher": "World Health Organization",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+                "section": "Non-use of motorcycle helmets, seat-belts and child restraints",
+                "checked_on": "2026-10-13",
+                "facts": [
+                  "Wearing a seat belt can reduce the risk of death for people travelling in vehicles. It does not guarantee safety."
+                ],
+                "catalogue_version": "traffic-sources-v1",
+                "scope": "general_road_safety_not_egyptian_law",
+                "usage": "supplied_to_generation_prompt"
+              }
+            ],
+            "created_at": "2026-10-13T18:21:12.705392Z"
+          },
+          {
+            "id": 18,
+            "language": "english",
+            "content_type": "text_package",
+            "review_status": "draft",
+            "content": {
+              "headline": "Seat Belts Help Protect Your Life on the Road",
+              "slogan": "Your seat belt is your safety on every trip",
+              "awareness_message": "Whether you are driving or a passenger, wearing a seat belt helps reduce the risk of severe injuries during road incidents. Always remember that protecting your safety and the safety of your passengers starts with a simple habit before the vehicle moves.",
+              "social_caption": "Road safety is everyone's responsibility. Buckle up on every trip and protect yourself and your loved ones.",
+              "call_to_action": "Buckle up before you drive"
+            },
+            "campaign_id": 13,
+            "generation_id": "d007dfb1-9253-4e09-87dd-658d64063932",
+            "provider": "gemini",
+            "model": "gemini-3.5-flash-lite",
+            "prompt_version": "traffic-text-v2-sourced",
+            "input_snapshot": {
+              "title": "حزامك أمانك في كل مشوار",
+              "objective": "تشجيع السواقين والركاب على ربط حزام الأمان قبل كل مشوار",
+              "domain": "traffic_safety",
+              "language": "both",
+              "audience": "السواقين والركاب في مصر",
+              "tone": "informative",
+              "arabic_dialect": "egyptian"
+            },
+            "source_references": [
+              {
+                "id": "who-seat-belts",
+                "topic": "seat_belts",
+                "title": "Road traffic injuries",
+                "publisher": "World Health Organization",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+                "section": "Non-use of motorcycle helmets, seat-belts and child restraints",
+                "checked_on": "2026-10-13",
+                "facts": [
+                  "Wearing a seat belt can reduce the risk of death for people travelling in vehicles. It does not guarantee safety."
+                ],
+                "catalogue_version": "traffic-sources-v1",
+                "scope": "general_road_safety_not_egyptian_law",
+                "usage": "supplied_to_generation_prompt"
+              }
+            ],
+            "created_at": "2026-10-13T18:21:12.705392Z"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "speeding",
+      "inputs": {
+        "case_id": "speeding",
+        "campaign": {
+          "title": "خفف سرعتك في كل مشوار",
+          "objective": "تشجيع السواقين على تجنب السرعة الزائدة وتقليل السرعة على الطريق",
+          "language": "both"
+        },
+        "request": {
+          "audience": "السواقين في مصر",
+          "tone": "encouraging"
+        },
+        "expected_source_ids": [
+          "who-speeding"
+        ]
+      },
+      "technical_checks": "passed",
+      "latency_seconds": 44.66,
+      "http_status": 201,
+      "response": {
+        "campaign_id": 14,
+        "contents": [
+          {
+            "id": 19,
+            "language": "arabic",
+            "content_type": "text_package",
+            "review_status": "draft",
+            "content": {
+              "headline": "خفف سرعتك عشان توصل بالسلامة",
+              "slogan": "السرعة الهادية تحميك وتحمي غيرك",
+              "awareness_message": "السرعات العالية بتزود جداً من احتمالات وقوع الحوادث وبتخلي نتايجها أقسى بكتير. لما تهدي سرعتك على الطريق، بتدي نفسك مساحة أكبر للسيطرة على العربية وحماية كل اللي حواليك. السواقة برواقان بتخلي طريقنا أمان لينا كلنا.",
+              "social_caption": "عشان سلامتك وسلامة الناس اللي معاasك على الطريق، دايماً افتكر إن السرعة الهادية هي طريق الأمان. خفف سرعتك واهتم بوصولك بالسلامة.",
+              "call_to_action": "خفف سرعتك في كل مشوار"
+            },
+            "campaign_id": 14,
+            "generation_id": "2c4b0ca9-b63d-4f80-a025-546f96e56873",
+            "provider": "gemini",
+            "model": "gemini-3.5-flash-lite",
+            "prompt_version": "traffic-text-v2-sourced",
+            "input_snapshot": {
+              "title": "خفف سرعتك في كل مشوار",
+              "objective": "تشجيع السواقين على تجنب السرعة الزائدة وتقليل السرعة على الطريق",
+              "domain": "traffic_safety",
+              "language": "both",
+              "audience": "السواقين في مصر",
+              "tone": "encouraging",
+              "arabic_dialect": "egyptian"
+            },
+            "source_references": [
+              {
+                "id": "who-speeding",
+                "topic": "speeding",
+                "title": "Road traffic injuries",
+                "publisher": "World Health Organization",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+                "section": "Speeding",
+                "checked_on": "2026-10-13",
+                "facts": [
+                  "Higher driving speeds are associated with a greater likelihood of crashes and more severe crash consequences."
+                ],
+                "catalogue_version": "traffic-sources-v1",
+                "scope": "general_road_safety_not_egyptian_law",
+                "usage": "supplied_to_generation_prompt"
+              }
+            ],
+            "created_at": "2026-10-13T18:21:57.388367Z"
+          },
+          {
+            "id": 20,
+            "language": "english",
+            "content_type": "text_package",
+            "review_status": "draft",
+            "content": {
+              "headline": "Slow down for a safer journey",
+              "slogan": "Calmer speeds protect everyone",
+              "awareness_message": "Higher driving speeds are associated with a greater likelihood of crashes and more severe crash consequences. Lowering your speed gives you more time to react and helps keep everyone on the road safer. Take it easy and look out for each other.",
+              "social_caption": "Protect yourself and others on the road by keeping your speed in check. A calmer pace makes every trip safer for everyone.",
+              "call_to_action": "Reduce your speed on every trip"
+            },
+            "campaign_id": 14,
+            "generation_id": "2c4b0ca9-b63d-4f80-a025-546f96e56873",
+            "provider": "gemini",
+            "model": "gemini-3.5-flash-lite",
+            "prompt_version": "traffic-text-v2-sourced",
+            "input_snapshot": {
+              "title": "خفف سرعتك في كل مشوار",
+              "objective": "تشجيع السواقين على تجنب السرعة الزائدة وتقليل السرعة على الطريق",
+              "domain": "traffic_safety",
+              "language": "both",
+              "audience": "السواقين في مصر",
+              "tone": "encouraging",
+              "arabic_dialect": "egyptian"
+            },
+            "source_references": [
+              {
+                "id": "who-speeding",
+                "topic": "speeding",
+                "title": "Road traffic injuries",
+                "publisher": "World Health Organization",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+                "section": "Speeding",
+                "checked_on": "2026-10-13",
+                "facts": [
+                  "Higher driving speeds are associated with a greater likelihood of crashes and more severe crash consequences."
+                ],
+                "catalogue_version": "traffic-sources-v1",
+                "scope": "general_road_safety_not_egyptian_law",
+                "usage": "supplied_to_generation_prompt"
+              }
+            ],
+            "created_at": "2026-10-13T18:21:57.388367Z"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "distracted-driving",
+      "inputs": {
+        "case_id": "distracted-driving",
+        "campaign": {
+          "title": "سيب الموبايل وانت سايق",
+          "objective": "توعية السواقين بمخاطر استخدام الموبايل والتشتت أثناء السواقة",
+          "language": "both"
+        },
+        "request": {
+          "audience": "السواقين في مصر",
+          "tone": "informative"
+        },
+        "expected_source_ids": [
+          "who-distracted-driving"
+        ]
+      },
+      "technical_checks": "passed",
+      "latency_seconds": 19.64,
+      "http_status": 201,
+      "response": {
+        "campaign_id": 15,
+        "contents": [
+          {
+            "id": 21,
+            "language": "arabic",
+            "content_type": "text_package",
+            "review_status": "draft",
+            "content": {
+              "headline": "خلي تركيزك في الطريق وسيب الموبايل",
+              "slogan": "السواقة عايزة انتباه، مش تشتت",
+              "awareness_message": "استخدام الموبايل أثناء السواقة بيقلل التركيز وبيأثر على سرعة رد الفعل، وكمان بيصعب الحفاظ على مسافة أمان والتحكم في حارة الطريق. عشان سلامتك وسلامة غيرك، خلي عينك على الطريق.",
+              "social_caption": "الموبايل في الإيد بيشتت الانتباه وبيعرضك للخطر على الطريق. ركز في سواقتك وحافظ على مسافة أمان.",
+              "call_to_action": "سيب الموبايل وخلي بالك من طريقك"
+            },
+            "campaign_id": 15,
+            "generation_id": "e37b8c27-9b4b-4e1d-9122-b76cd12ce4e3",
+            "provider": "gemini",
+            "model": "gemini-3.5-flash-lite",
+            "prompt_version": "traffic-text-v2-sourced",
+            "input_snapshot": {
+              "title": "سيب الموبايل وانت سايق",
+              "objective": "توعية السواقين بمخاطر استخدام الموبايل والتشتت أثناء السواقة",
+              "domain": "traffic_safety",
+              "language": "both",
+              "audience": "السواقين في مصر",
+              "tone": "informative",
+              "arabic_dialect": "egyptian"
+            },
+            "source_references": [
+              {
+                "id": "who-distracted-driving",
+                "topic": "distracted_driving",
+                "title": "Road traffic injuries",
+                "publisher": "World Health Organization",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+                "section": "Distracted driving",
+                "checked_on": "2026-10-13",
+                "facts": [
+                  "Using a mobile phone while driving can slow reactions and make lane control and following-distance management harder."
+                ],
+                "catalogue_version": "traffic-sources-v1",
+                "scope": "general_road_safety_not_egyptian_law",
+                "usage": "supplied_to_generation_prompt"
+              }
+            ],
+            "created_at": "2026-10-13T18:22:17.043520Z"
+          },
+          {
+            "id": 22,
+            "language": "english",
+            "content_type": "text_package",
+            "review_status": "draft",
+            "content": {
+              "headline": "Keep Your Eyes on the Road, Put the Phone Down",
+              "slogan": "Drive focused, stay safe",
+              "awareness_message": "Using a mobile phone while driving slows your reaction time and makes lane control and following-distance management much harder. Stay focused on the road to help protect yourself and others.",
+              "social_caption": "Distracted driving puts everyone at risk. Put the phone away and keep your attention on the road ahead.",
+              "call_to_action": "Put the phone down and drive focused"
+            },
+            "campaign_id": 15,
+            "generation_id": "e37b8c27-9b4b-4e1d-9122-b76cd12ce4e3",
+            "provider": "gemini",
+            "model": "gemini-3.5-flash-lite",
+            "prompt_version": "traffic-text-v2-sourced",
+            "input_snapshot": {
+              "title": "سيب الموبايل وانت سايق",
+              "objective": "توعية السواقين بمخاطر استخدام الموبايل والتشتت أثناء السواقة",
+              "domain": "traffic_safety",
+              "language": "both",
+              "audience": "السواقين في مصر",
+              "tone": "informative",
+              "arabic_dialect": "egyptian"
+            },
+            "source_references": [
+              {
+                "id": "who-distracted-driving",
+                "topic": "distracted_driving",
+                "title": "Road traffic injuries",
+                "publisher": "World Health Organization",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/road-traffic-injuries",
+                "section": "Distracted driving",
+                "checked_on": "2026-10-13",
+                "facts": [
+                  "Using a mobile phone while driving can slow reactions and make lane control and following-distance management harder."
+                ],
+                "catalogue_version": "traffic-sources-v1",
+                "scope": "general_road_safety_not_egyptian_law",
+                "usage": "supplied_to_generation_prompt"
+              }
+            ],
+            "created_at": "2026-10-13T18:22:17.043520Z"
+          }
+        ]
+      }
+    }
+  ],
+  "database_cleanup": "rolled back; row counts unchanged",
+  "token_usage_and_cost": "not measured by this capture"
+}

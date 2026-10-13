@@ -1,0 +1,32 @@
+[
+  {
+    "case_id": "seat-belts",
+    "campaign": {
+      "title": "حزامك أمانك في كل مشوار",
+      "objective": "تشجيع السواقين والركاب على ربط حزام الأمان قبل كل مشوار",
+      "language": "both"
+    },
+    "request": {"audience": "السواقين والركاب في مصر", "tone": "informative"},
+    "expected_source_ids": ["who-seat-belts"]
+  },
+  {
+    "case_id": "speeding",
+    "campaign": {
+      "title": "خفف سرعتك في كل مشوار",
+      "objective": "تشجيع السواقين على تجنب السرعة الزائدة وتقليل السرعة على الطريق",
+      "language": "both"
+    },
+    "request": {"audience": "السواقين في مصر", "tone": "encouraging"},
+    "expected_source_ids": ["who-speeding"]
+  },
+  {
+    "case_id": "distracted-driving",
+    "campaign": {
+      "title": "سيب الموبايل وانت سايق",
+      "objective": "توعية السواقين بمخاطر استخدام الموبايل والتشتت أثناء السواقة",
+      "language": "both"
+    },
+    "request": {"audience": "السواقين في مصر", "tone": "informative"},
+    "expected_source_ids": ["who-distracted-driving"]
+  }
+]

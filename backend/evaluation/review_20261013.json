@@ -1,0 +1,82 @@
+{
+  "capture": "runs/20261013T181946294622Z.json",
+  "review_method": "Codex-assisted qualitative comparison against the exact supplied summaries; not an independent human panel",
+  "raw_drafts_ready_without_edits": 0,
+  "review_status": "draft",
+  "cases": [
+    {
+      "case_id": "seat-belts",
+      "overall": "needs_edit",
+      "findings": [
+        "Both messages add severe-injury benefits absent from the supplied death-risk summary.",
+        "English call to action targets drivers despite the audience including passengers.",
+        "Arabic uses recognizable Egyptian phrasing; no obvious spelling corruption was observed."
+      ],
+      "proposed_patch_bodies": {
+        "arabic": {
+          "content": {
+            "headline": "اربط حزامك في كل مشوار",
+            "awareness_message": "ربط حزام الأمان ممكن يقلل خطر الوفاة للسواقين والركاب في العربيات، لكنه مش ضمان للسلامة. خلي ربط الحزام عادة ليك ولكل اللي معاك في كل مشوار."
+          }
+        },
+        "english": {
+          "content": {
+            "awareness_message": "Wearing a seat belt can reduce the risk of death for vehicle occupants, but it does not guarantee safety. Make buckling up a habit for yourself and everyone travelling with you on every trip.",
+            "call_to_action": "Fasten your seat belt before every trip."
+          }
+        }
+      }
+    },
+    {
+      "case_id": "speeding",
+      "overall": "needs_edit",
+      "findings": [
+        "Arabic caption contains the mixed-letter typo معاasك.",
+        "Both messages add reaction/control benefits absent from the supplied speed/crash-risk summary.",
+        "Calls to action address the intended driver audience; English is otherwise readable."
+      ],
+      "proposed_patch_bodies": {
+        "arabic": {
+          "content": {
+            "headline": "خفف سرعتك في كل مشوار",
+            "slogan": "خلي تقليل السرعة عادة",
+            "awareness_message": "السرعات العالية مرتبطة بزيادة احتمال الحوادث وبنتايج أشد لو حصلت حادثة. خفف سرعتك وخلي تقليل السرعة عادة في كل مشوار.",
+            "social_caption": "فكّر نفسك واللي معاك بأهمية تجنب السرعة الزايدة. شارك الرسالة وشجّع السواقة بهدوء."
+          }
+        },
+        "english": {
+          "content": {
+            "awareness_message": "Higher driving speeds are associated with a greater likelihood of crashes and more severe crash consequences. Avoid excessive speed and make reducing your speed a habit on every trip."
+          }
+        }
+      }
+    },
+    {
+      "case_id": "distracted-driving",
+      "overall": "needs_minor_edit",
+      "findings": [
+        "The main message matches the supplied phone/reaction/lane-control summary.",
+        "English changes can slow to slows and adds much harder; preserve the supplied level of certainty.",
+        "Arabic حارة الطريق is understandable but الحارة is a more natural wording choice here."
+      ],
+      "proposed_patch_bodies": {
+        "arabic": {
+          "content": {
+            "awareness_message": "استخدام الموبايل وإنت سايق ممكن يبطّأ رد فعلك ويصعّب الحفاظ على الحارة والمسافة بينك وبين العربية اللي قدامك. سيب الموبايل وركز في الطريق."
+          }
+        },
+        "english": {
+          "content": {
+            "awareness_message": "Using a mobile phone while driving can slow reactions and make lane control and following-distance management harder. Put the phone away and focus on the road."
+          }
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Three cases, one live attempt per topic, and one provider/model are not a statistical benchmark.",
+    "These are proposed edits for review, not approved or published content.",
+    "The captured IDs belong to rolled-back diagnostic records and cannot be used for PATCH calls.",
+    "Source references show input provenance, not automatic sentence-level verification."
+  ]
+}
