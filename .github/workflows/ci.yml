@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend tests and PostgreSQL integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: govreach_test
+          POSTGRES_PASSWORD: test_only_password
+          POSTGRES_DB: govreach_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U govreach_test -d govreach_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+psycopg://govreach_test:test_only_password@localhost:5432/govreach_test
+      REDIS_URL: redis://localhost:6379/0
+      JWT_SECRET: ci_only_test_secret
+      GEMINI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+            backend/constraints.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt -c constraints.txt
+      - name: Run isolated tests
+        run: python -m pytest -q
+      - name: Check repository for local files and credentials
+        run: python ../scripts/check_repository.py
+      - name: Apply and verify PostgreSQL migrations
+        run: |
+          python -m alembic upgrade head
+          python -m alembic check
+      - name: Verify API with a fake provider
+        run: python -m scripts.check_generation_api
+
+  frontend:
+    name: Frontend lint and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
