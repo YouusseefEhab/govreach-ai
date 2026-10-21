@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Campaign } from './types.ts'
+import type { Campaign, CampaignCreate } from './types.ts'
 
 const configuredBase = import.meta.env?.VITE_API_BASE_URL?.trim()
 export const API_BASE_URL = (configuredBase || 'http://localhost:8000').replace(/\/+$/, '')
@@ -103,4 +103,14 @@ export function checkBackend(signal?: AbortSignal) {
 export function listCampaigns(skip: number, limit: number, signal?: AbortSignal): Promise<Campaign[]> {
   const params = new URLSearchParams({ skip: String(skip), limit: String(limit) })
   return apiRequest(`/api/v1/campaigns?${params}`, { signal }, (body) => z.array(campaignSchema).parse(body))
+}
+
+export function getCampaign(id: number, signal?: AbortSignal): Promise<Campaign> {
+  return apiRequest(`/api/v1/campaigns/${id}`, { signal }, (body) => campaignSchema.parse(body))
+}
+
+export function createCampaign(data: CampaignCreate): Promise<Campaign> {
+  return apiRequest('/api/v1/campaigns', {
+    method: 'POST', body: JSON.stringify(data),
+  }, (body) => campaignSchema.parse(body))
 }

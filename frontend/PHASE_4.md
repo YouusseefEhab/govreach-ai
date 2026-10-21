@@ -53,11 +53,14 @@ Step 1 implemented: Arabic-default RTL layout (user preference), navigation,
 TanStack Query provider, shared configurable API client, campaign/content types,
 safe HTTP/network/validation errors, response-shape validation, and backend health.
 The first part of Step 2 adds a read-only campaign list with URL pagination,
-loading/error/empty states, and isolated Arabic/English titles. Creation, campaign
-detail/edit/delete, generation, content history/review, and an English UI switch
+loading/error/empty states, and isolated Arabic/English titles. The next increment
+adds campaign creation with React Hook Form/Zod, explicit saving, pending guards,
+retained values on errors, and a details route that can reload the saved brief.
+List titles link to details; successful creation invalidates the campaign list.
+Campaign edit/delete, generation, content history/review, and an English UI switch
 remain pending. Existing backend contracts and database schema are unchanged.
 
-Verification: production build and lint passed; 11 tests passed. API client tests
+Verification: production build and lint passed; 18 tests passed. API client tests
 mock fetch and cover pagination, malformed data, validation, HTTP failures,
 cancellation, no automatic replay, and empty 204 responses. Server-rendered route
 tests cover Arabic navigation, mixed-language titles, pagination controls, empty
@@ -66,8 +69,11 @@ The browser-control runtime failed to initialize, so visual, keyboard interactio
 and mobile viewport checks remain pending.
 Local HTTP checks returned 200 for `/` and `/campaigns`; FastAPI `/health` and
 the campaign-list endpoint returned 200 with the correct localhost:5173 CORS
-origin. The list read two existing campaigns; no records were changed and no
-Gemini requests were made.
+origin. The initial list read two existing campaigns. Creation was then checked
+with the real frontend API client: create a disposable campaign, retrieve it twice,
+find it in the list, and delete only that test campaign. Existing campaigns were
+preserved; no Gemini requests were made. A real browser form submission and reload
+walkthrough remain pending.
 See the frontend README for local setup and verification commands.
 
 | Step | Work | Acceptance result |

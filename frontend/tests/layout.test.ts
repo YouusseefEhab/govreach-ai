@@ -15,12 +15,13 @@ before(async () => {
 })
 after(async () => { await server?.close() })
 
-function render(path: string, records?: unknown[]) {
+function render(path: string, records?: unknown[], campaign?: unknown) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   client.setQueryData(['health'], { status: 'healthy' })
   if (records) {
     client.setQueryData(['campaigns', { skip: 0, limit: 20 }], records)
   }
+  if (campaign) client.setQueryData(['campaign', 27], campaign)
   try {
     return renderToStaticMarkup(createElement(QueryClientProvider, { client },
       createElement(MemoryRouter, { initialEntries: [path] }, createElement(App))))
@@ -58,4 +59,28 @@ test('unknown routes offer a working recovery link', () => {
   const html = render('/does-not-exist')
   assert.ok(html.includes('الصفحة مش موجودة'))
   assert.ok(html.includes('href="/campaigns"'))
+})
+
+test('new campaign route provides labelled Arabic fields and separate saving action', () => {
+  const html = render('/campaigns/new')
+  assert.ok(html.includes('for="title"'))
+  assert.ok(html.includes('for="objective"'))
+  assert.ok(html.includes('for="language"'))
+  assert.ok(html.includes('احفظ الحملة'))
+  assert.ok(html.includes('value="both" selected=""'))
+  assert.ok(!html.includes('الصفحة مش موجودة'))
+})
+
+test('saved campaign detail displays its original brief and selected language', () => {
+  const html = render('/campaigns/27', undefined, {
+    id: 27, title: 'Seat belt safety', objective: 'هدف الحملة\nرسالة تانية',
+    domain: 'traffic_safety', language: 'english', status: 'draft', created_at: '2026-10-21T12:00:00Z',
+  })
+  assert.ok(html.includes('dir="auto">Seat belt safety'))
+  assert.ok(html.includes('هدف الحملة\nرسالة تانية'))
+  assert.ok(html.includes('إنجليزي'))
+})
+
+test('invalid campaign IDs offer recovery rather than starting a query', () => {
+  assert.ok(render('/campaigns/not-an-id').includes('رقم الحملة غير صحيح'))
 })

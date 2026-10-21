@@ -1,5 +1,5 @@
 import { queryOptions, QueryClient } from '@tanstack/react-query'
-import { checkBackend, listCampaigns } from './services/api'
+import { checkBackend, getCampaign, listCampaigns } from './services/api'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,4 +16,10 @@ export const healthQuery = queryOptions({
 export const campaignsQuery = (skip: number, limit: number) => queryOptions({
   queryKey: ['campaigns', { skip, limit }],
   queryFn: ({ signal }) => listCampaigns(skip, limit, signal),
+})
+
+export const campaignQuery = (id: number) => queryOptions({
+  queryKey: ['campaign', id],
+  queryFn: ({ signal }) => getCampaign(id, signal),
+  enabled: Number.isSafeInteger(id) && id > 0,
 })

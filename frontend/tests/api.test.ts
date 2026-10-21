@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
-import { ApiError, apiRequest, checkBackend, listCampaigns } from '../src/services/api.ts'
+import { ApiError, apiRequest, checkBackend, createCampaign, getCampaign, listCampaigns } from '../src/services/api.ts'
 
 const originalFetch = globalThis.fetch
 afterEach(() => { globalThis.fetch = originalFetch })
@@ -22,6 +22,29 @@ test('campaign reads encode pagination and validate bilingual records', async ()
 test('health response follows the actual FastAPI contract', async () => {
   globalThis.fetch = async () => Response.json({ status: 'healthy' })
   assert.deepEqual(await checkBackend(), { status: 'healthy' })
+})
+
+test('creating a campaign sends the brief once and returns the saved ID', async () => {
+  const brief = { title: 'حزامك أمانك', objective: 'تشجيع استخدام الحزام', language: 'both' as const, domain: 'traffic_safety' }
+  let calls = 0
+  globalThis.fetch = async (url, options) => {
+    calls++
+    assert.equal(String(url), 'http://localhost:8000/api/v1/campaigns')
+    assert.equal(options?.method, 'POST')
+    assert.equal(new Headers(options?.headers).get('Content-Type'), 'application/json')
+    assert.deepEqual(JSON.parse(options?.body as string), brief)
+    return Response.json({ ...brief, id: 27, status: 'draft', created_at: '2026-10-21T12:00:00Z' }, { status: 201 })
+  }
+  assert.equal((await createCampaign(brief)).id, 27)
+  assert.equal(calls, 1)
+})
+
+test('campaign details can be fetched independently after a refresh', async () => {
+  globalThis.fetch = async (url) => {
+    assert.equal(String(url), 'http://localhost:8000/api/v1/campaigns/27')
+    return Response.json({ id: 27, title: 'Test', objective: 'Objective', domain: 'traffic_safety', language: 'english', status: 'draft', created_at: '2026-10-21T12:00:00Z' })
+  }
+  assert.equal((await getCampaign(27)).language, 'english')
 })
 
 test('missing records and malformed successful payloads are controlled errors', async () => {

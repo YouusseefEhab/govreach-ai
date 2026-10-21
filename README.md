@@ -19,8 +19,9 @@ in draft until reviewed; approval does not publish it or imply government endors
 - Edited packages reset to draft for another review.
 
 The backend and Phase 3 pilot evaluation are complete. The frontend currently
-contains an Arabic RTL React layout, backend health check, and read-only paginated
-campaign list. The remaining campaign workflow is being built in Phase 4.
+contains an Arabic RTL React layout, backend health check, paginated campaign list,
+campaign creation form, and saved campaign details. The remaining campaign
+workflow is being built in Phase 4.
 Images, video, authentication, publishing, and cloud deployment
 are future milestones.
 

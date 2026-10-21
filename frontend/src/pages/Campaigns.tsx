@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { campaignsQuery } from '../queries'
 import { messages } from '../messages'
 import { ErrorNotice } from '../components/Feedback'
@@ -29,6 +29,7 @@ export default function Campaigns() {
         <p className="eyebrow">رسائلك في مكان واحد</p>
         <h1 id="campaign-heading" tabIndex={-1}>{messages.campaigns}</h1>
         <p>استعرض الحملات المحفوظة ولغات محتواها.</p>
+        <Link className="button" to="/campaigns/new">+ حملة جديدة</Link>
       </div>
       {query.isPending && <div className="panel" role="status">{messages.loading}</div>}
       {query.isError && <ErrorNotice error={query.error} retry={() => { void query.refetch() }} />}
@@ -52,7 +53,7 @@ export default function Campaigns() {
                 </tr></thead>
                 <tbody>{query.data.map((campaign) => (
                   <tr key={campaign.id}>
-                    <th scope="row"><bdi>{campaign.title}</bdi><small className="record-id">رقم <bdi>{campaign.id}</bdi></small></th>
+                    <th scope="row"><Link className="text-link" to={`/campaigns/${campaign.id}`}><bdi>{campaign.title}</bdi></Link><small className="record-id">رقم <bdi>{campaign.id}</bdi></small></th>
                     <td><bdi>{campaign.domain === 'traffic_safety' ? messages.traffic_safety : campaign.domain}</bdi></td>
                     <td><bdi>{languageLabels[campaign.language] ?? campaign.language}</bdi></td>
                     <td><span className="pill"><bdi>{campaign.status === 'draft' ? messages.draft : campaign.status}</bdi></span></td>
