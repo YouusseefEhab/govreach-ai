@@ -1,7 +1,7 @@
 # GovReach AI frontend
 
 React + TypeScript + Vite application for the graduation project. The current
-implementation contains an Arabic RTL layout, welcome page, backend health
+implementation contains an Arabic-default bilingual RTL/LTR layout, welcome page, backend health
 check, paginated campaign list, shared campaign create/edit form, saved campaign
 details, confirmed deletion, text generation, paginated saved text/source cards,
 and per-language content editing/approval/rejection. Further interface work is planned in
@@ -36,7 +36,12 @@ display an error; success returns to the refreshed campaign list.
 Previous/Next uses the API's `skip`/`limit`;
 an exactly full final page can lead to an empty next page because there is no
 total count. The health indicator checks process responsiveness, not the database.
-The English interface switch is a later increment; campaign language is independent.
+The header language selector switches Arabic/English UI and persists the preference
+locally. Campaign language and generated text remain independent. Switching does
+not remount forms or trigger generation. Known UI validations/errors and feedback
+are translated; source titles/sections stay as supplied.
+Each content card has exact-text copy buttons for individual fields and the full
+five-field package. Clipboard failure shows a manual-copy instruction, not success.
 
 ## Text generation
 
@@ -102,11 +107,15 @@ confirmation and cancel (campaign must remain), then confirm deletion (it must
 disappear). Never use an important campaign for the deletion walkthrough.
 Live API verification used the real frontend client to create/read/partially edit/
 delete only disposable campaigns, checking preserved fields and a final 404.
-No Gemini calls were made. Automated checks: 38 frontend tests, frontend lint/build,
+No Gemini calls were made. Automated checks: 46 frontend tests, frontend lint/build,
 and the PostgreSQL fake-provider API diagnostic passed. The existing backend suite
 also passed its 165 tests in the preceding campaign-management increment.
 Live GET checks retrieved existing histories through the frontend client.
 Focus restoration and click/pending behavior still need browser interaction checks.
+The user subsequently confirmed the full core workflow works, including review,
+refresh, draft reset, unsaved-edit warnings, and deletion confirmation. See the
+[verification record](PHASE_4_VERIFICATION.md) for evidence and the remaining
+new-control/mobile/keyboard checklist.
 
 Generation walkthrough (a real provider request may consume quota/credits): open a
 test traffic-safety campaign, set audience/tone, and generate once. Wait without

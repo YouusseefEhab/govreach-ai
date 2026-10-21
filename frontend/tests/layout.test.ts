@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { after, before, test } from 'node:test'
+import { after, afterEach, before, test } from 'node:test'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router-dom'
@@ -10,12 +10,14 @@ let server: Awaited<ReturnType<typeof createServer>>
 let App: () => ReturnType<typeof createElement>
 let renderConfirmation: (busy: boolean) => string
 let renderGeneration: (busy: boolean, disabled?: boolean) => string
-let renderContent: () => string
+let renderContent: (language?: 'arabic' | 'english') => string
+let setUiLanguage: (language: 'ar' | 'en') => void
 let renderReview: (dirty: boolean, busy: boolean, status?: string) => string
 
 before(async () => {
   server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   App = (await server.ssrLoadModule('/src/App.tsx')).default
+  setUiLanguage = (await server.ssrLoadModule('/src/i18n.ts')).setInterfaceLanguage
   const { DeleteConfirmation } = await server.ssrLoadModule('/src/components/DeleteCampaign.tsx')
   renderConfirmation = (busy) => renderToStaticMarkup(createElement(DeleteConfirmation, {
     title: '<script>unsafe</script>', busy, confirm: () => {}, cancel: () => {},
@@ -25,11 +27,11 @@ before(async () => {
     busy, disabled, submit: async () => { throw new Error('Rendering must never submit') },
   }))
   const { default: ContentCard } = await server.ssrLoadModule('/src/components/ContentCard.tsx')
-  renderContent = () => renderToStaticMarkup(createElement(ContentCard, { showEditorLink: false, item: {
-    id: 15, campaign_id: 27, generation_id: 'f23507de-84ac-46a6-9f07-a44918edf4b2', language: 'english',
+  renderContent = (language = 'english') => renderToStaticMarkup(createElement(ContentCard, { showEditorLink: false, item: {
+    id: 15, campaign_id: 27, generation_id: 'f23507de-84ac-46a6-9f07-a44918edf4b2', language,
     review_status: 'draft', provider: 'fake', model: 'test', prompt_version: 'test', created_at: '2026-10-21T12:00:00Z',
     source_references: [{ title: '<script>unsafe</script>', url: 'javascript:alert(1)' }],
-    content: { headline: '<script>text</script>', slogan: 'Slogan', awareness_message: 'Message', social_caption: 'Caption', call_to_action: 'Action' },
+    content: { headline: '<script>text</script>', slogan: 'حزامك أمانك', awareness_message: 'Message', social_caption: 'Caption', call_to_action: 'Action' },
   } }))
   const { ReviewActions } = await server.ssrLoadModule('/src/pages/ContentEditor.tsx')
   renderReview = (dirty, busy, status = 'draft') => renderToStaticMarkup(createElement(ReviewActions, {
@@ -37,6 +39,7 @@ before(async () => {
   }))
 })
 after(async () => { await server?.close() })
+afterEach(() => { setUiLanguage?.('ar') })
 
 function render(path: string, records?: unknown[], campaign?: unknown) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -177,4 +180,31 @@ test('content editor reload route shows stored fields, status and source context
     assert.ok(html.includes('آخر نسخة محفوظة'))
     assert.ok(html.includes('بيرجّع النسخة لمسودة'))
   } finally { router.dispose(); client.clear() }
+})
+
+test('English screens translate navigation and forms without translating campaign data', () => {
+  setUiLanguage('en')
+  const home = render('/')
+  assert.ok(home.includes('Campaign workspace'))
+  assert.ok(home.includes('Server connected'))
+  assert.ok(home.includes('for="interface-language"'))
+  const form = render('/campaigns/new')
+  assert.ok(form.includes('Campaign title'))
+  assert.ok(form.includes('Save campaign'))
+  assert.ok(form.includes('value="both" selected=""'))
+  const list = render('/campaigns', [{ id: 27, title: 'رسالة عربية', objective: 'Keep content', domain: 'traffic_safety', language: 'both', status: 'draft', created_at: '2026-10-21T12:00:00Z' }])
+  assert.ok(list.includes('<bdi>رسالة عربية</bdi>'))
+  assert.ok(list.includes('Arabic and English'))
+  assert.ok(list.includes('Draft'))
+})
+
+test('English interface preserves Arabic package direction and adds exact-text copy controls', () => {
+  setUiLanguage('en')
+  const html = renderContent('arabic')
+  assert.ok(html.includes('lang="ar-EG" dir="rtl"'))
+  assert.ok(html.includes('حزامك أمانك'))
+  assert.ok(html.includes('Copy all text'))
+  assert.ok(html.includes('Copy Slogan'))
+  assert.ok(html.includes('Draft for review'))
+  assert.ok(html.includes('Sources and generation details'))
 })

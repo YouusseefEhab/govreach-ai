@@ -29,6 +29,17 @@ h2 { font-size: 1.25rem; margin-bottom: 12px; }
 .sidebar-note p { margin-bottom: 0; }
 .workspace { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .topbar { min-height: 84px; padding: 20px 44px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #e0e6ef; font-size: 13px; }
+.topbar { flex-wrap: wrap; }
+.language-switch { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.language-switch select { font: inherit; color: inherit; background: white; padding: 8px; border: 1px solid #bdc9da; border-radius: 6px; min-height: 40px; }
+.copy-control { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.button.copy-button { padding: 6px 10px; font-size: 11px; min-height: 36px; }
+.copy-feedback { font-size: 11px; color: #526479; }
+.content-sources { overflow-wrap: anywhere; }
+.record-id, footer { color: #56667a; }
+.language-switch select { font-size: 16px; }
+[dir="ltr"] .direction-arrow { transform: rotate(180deg); }
+.text-field-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 .connection { display: inline-flex; align-items: center; gap: 8px; color: #78521f; font-size: 12px; }
 .status-dot { width: 7px; height: 7px; background: #b77b29; border-radius: 50%; }
 .connection.online { color: #246549; }

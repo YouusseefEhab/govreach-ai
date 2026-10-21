@@ -72,12 +72,17 @@ saved-preview/source context, confirmed draft reset, and separate approval/rejec
 Dirty/pending forms block review, failures preserve edits, and successful mutations
 refresh the affected content/history caches. React Router uses its data-router
 provider to support its built-in unsaved navigation blocker; reload/close uses the
-native beforeunload warning. Copying, more history detail, browser verification,
-and an English UI switch remain pending. Existing backend contracts and database
+native beforeunload warning. The polish increment adds an Arabic-default English
+UI switch, persistent preference, translated labels/errors/dates, and exact-text
+field/package copy controls with honest clipboard failure feedback. Interface
+direction remains independent of package direction; forms keep their identity
+when switching. Responsive/keyboard code review added focusable table scrolling,
+source wrapping and improved small-text contrast. Browser checks for new controls,
+mobile widths, and keyboard operation remain pending. Existing backend contracts and database
 schema are unchanged. Full reloads/multiple tabs have no shared pending guard;
 backend idempotency and cancellation remain outside the current API.
 
-Verification: production build and lint passed; 38 frontend tests passed. The 165
+Verification: production build and lint passed; 46 frontend tests passed. The 165
 backend tests passed during the preceding campaign-management increment. API client tests
 mock fetch and cover pagination, malformed data, validation, HTTP failures,
 cancellation, no automatic replay, and empty 204 responses. Server-rendered route
@@ -112,7 +117,13 @@ content records; no user packages were edited. The fake-provider PostgreSQL
 diagnostic again verified edit/review/reset behavior and rolled back all writes.
 Actual form clicks, navigation-blocker interaction, and close/reload prompts still
 need browser checks. Build emits a non-blocking >500 kB chunk advisory; splitting
-is deferred to polish rather than changing implementation scope here.
+is deferred rather than changing implementation scope here.
+The user then confirmed the complete core workflow passes manual testing, including
+persistence, review/draft reset, language-package preservation, and confirmations.
+New tests cover translated screens, catalogue coverage, preference persistence,
+Unicode copying and clipboard denial. Browser tooling still cannot initialize;
+visual and keyboard checks for this increment remain pending.
+See [Phase 4 verification](PHASE_4_VERIFICATION.md) for the focused checklist.
 See the frontend README for local setup and verification commands.
 
 | Step | Work | Acceptance result |

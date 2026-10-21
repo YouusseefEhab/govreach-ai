@@ -19,11 +19,13 @@ in draft until reviewed; approval does not publish it or imply government endors
 - Edited packages reset to draft for another review.
 
 The backend and Phase 3 pilot evaluation are complete. The frontend currently
-contains an Arabic RTL React layout, backend health check, paginated campaign list,
+contains an Arabic-default bilingual React layout, backend health check, paginated campaign list,
 campaign creation/editing, saved campaign details, and confirmed deletion.
 Text generation and saved draft/source display are available in the UI.
 The UI also supports partial content edits, draft reset, and separate per-language
-approval/rejection. Bilingual interface polish and browser verification remain.
+approval/rejection, an English interface switch, and exact-text copy controls.
+The user confirmed the core workflow; final mobile/keyboard and new-control checks
+are recorded in the [Phase 4 verification checklist](frontend/PHASE_4_VERIFICATION.md).
 Images, video, authentication, publishing, and cloud deployment
 are future milestones.
 
