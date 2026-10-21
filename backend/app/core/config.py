@@ -1,5 +1,6 @@
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -23,6 +24,11 @@ class Settings(BaseSettings):
     gemini_timeout_seconds: float = Field(default=90, gt=0, le=120)
     media_root: Path = PROJECT_ROOT / "data" / "media"
     media_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=50 * 1024 * 1024)
+    image_provider: Literal["fake", "cloudflare"] = "fake"
+    cloudflare_account_id: str = ""
+    cloudflare_api_token: SecretStr = SecretStr("")
+    cloudflare_free_plan_confirmed: bool = False
+    cloudflare_image_timeout_seconds: float = Field(default=90, gt=0, le=120)
 
     model_config = SettingsConfigDict(
         env_file=PROJECT_ROOT / ".env",

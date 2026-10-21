@@ -28,9 +28,11 @@ The user confirmed the core workflow and mobile checks; keyboard testing is
 deferred. See the [Phase 4 verification record](frontend/PHASE_4_VERIFICATION.md).
 The [Phase 5 image foundation](docs/PHASE_5.md) adds separate request metadata,
 source snapshots, request identity and local byte storage. Decoded-image validation
-and a fake-only pipeline are available, with a rollback-only diagnostic. Image APIs,
-real image providers and image UI are not available yet; no paid image calls are
-enabled. Video, authentication, publishing and cloud deployment remain later.
+and a fake-default pipeline are available, with a rollback-only diagnostic.
+A [Cloudflare image adapter](docs/CLOUDFLARE_SETUP.md) is implemented and mock-tested;
+credentials/Free-plan access need setup. Image APIs, cleanup integration and UI are
+not available yet. Paid image APIs are deferred. Video, authentication, publishing
+and cloud deployment remain later.
 
 ## Technology and architecture
 
@@ -136,7 +138,8 @@ npm test
 npm run build
 ```
 
-The backend has 219 passing tests. The image diagnostic is fake-only. Live text
+The backend has 244 passing tests. The image diagnostic is fake by default;
+`--cloudflare` makes one explicit image request after Free-plan configuration. Live text
 diagnostics are opt-in: add `--live` to
 `scripts.check_generation_api` for one provider request or run
 `scripts.evaluate_text_generation --live` for three. Quotas/charges depend on API

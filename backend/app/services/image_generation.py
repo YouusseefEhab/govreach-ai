@@ -1,4 +1,4 @@
-"""Image reservations and a fake-only, verified-image generation pipeline."""
+"""Image reservations and a verified-image generation pipeline."""
 
 from copy import deepcopy
 import hashlib
@@ -17,6 +17,7 @@ from app.schemas.image_generation import ImageGenerationRequest, ImageRequestIde
 from app.providers.image import ImageProvider, ImageProviderError
 from app.services.image_validation import InvalidImageError, validate_image
 from app.storage.images import ImageStorage, ImageStorageError, StoredImageFile
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ def source_is_current(db: Session, image: ImageGeneration) -> bool:
 
 def reserve_image_request(
     db: Session, campaign_id: int, request: ImageGenerationRequest, identity: ImageRequestIdentity,
+    *, provider_name: str = "fake", model: str = "fake-image-v1", prompt_version: str = "traffic-image-v1",
 ) -> tuple[ImageGeneration, bool]:
     # Hash caller inputs separately from the source snapshot: replaying a key
     # returns its original snapshot even if the source was subsequently edited.
@@ -69,7 +71,7 @@ def reserve_image_request(
             idempotency_key=identity.key, request_hash=request_hash, source_hash=digest(source.content),
             source_snapshot=snapshot, source_references=deepcopy(source.source_references),
             visual_brief=request.visual_brief, style=request.style,
-            provider="fake", model="fake-image-v1", prompt_version="traffic-image-v1",
+            provider=provider_name, model=model, prompt_version=prompt_version,
         )
         return row, True
     except IntegrityError:
@@ -106,10 +108,15 @@ def generate_image(
     db: Session, campaign_id: int, request: ImageGenerationRequest, identity: ImageRequestIdentity,
     provider: ImageProvider, storage: ImageStorage, *, max_bytes: int = 10 * 1024 * 1024,
 ) -> tuple[ImageGeneration, bool]:
-    # Explicit budget boundary: no real image provider is enabled in this increment.
-    if provider.provider_name != "fake" or provider.model != "fake-image-v1":
+    from app.providers.cloudflare import MODEL, PROMPT_VERSION
+    fake = provider.provider_name == "fake" and provider.model == "fake-image-v1"
+    cloudflare = (provider.provider_name == "cloudflare" and provider.model == MODEL
+                  and settings.image_provider == "cloudflare" and settings.cloudflare_free_plan_confirmed)
+    if not (fake or cloudflare):
         raise ImageRequestError(503, "Live image generation is not enabled")
-    row, created = reserve_image_request(db, campaign_id, request, identity)
+    row, created = reserve_image_request(db, campaign_id, request, identity,
+                                       provider_name=provider.provider_name, model=provider.model,
+                                       prompt_version=PROMPT_VERSION if cloudflare else "traffic-image-v1")
     if not created:
         return row, False
     image_id = row.id

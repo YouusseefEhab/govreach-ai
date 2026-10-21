@@ -30,7 +30,7 @@ def main():
     local_values = dotenv_values(ROOT / ".env") if (ROOT / ".env").exists() else {}
     secrets = [
         value.encode("utf-8") for name, value in local_values.items()
-        if name in {"GEMINI_API_KEY", "OPENAI_API_KEY", "JWT_SECRET"} and value and len(value) >= 12
+        if name in {"GEMINI_API_KEY", "OPENAI_API_KEY", "JWT_SECRET", "CLOUDFLARE_API_TOKEN"} and value and len(value) >= 12
     ]
     findings = []
     for name in paths:

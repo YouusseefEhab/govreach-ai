@@ -2,6 +2,31 @@
 
 Prepared 2026-10-21. **Foundation approved and implemented; paid usage remains unapproved.**
 
+## Updated provider decision — Cloudflare Free first
+
+The user chose Cloudflare Workers AI with FLUX.1 Schnell for images until a later
+paid-API decision. Gemini remains the text provider. The earlier Gemini image
+comparison below is retained as a future alternative, not the current default.
+
+Implemented a fixed-model Cloudflare adapter and backend configuration; default
+is still fake until account credentials and explicit Free-plan confirmation are
+provided. No paid fallback, billing API calls, automatic retry, redirects, or live
+model selection. HTTP/base64 response sizes are bounded and raw error bodies are
+not exposed. The existing image reservation stores actual provider/model/prompt
+version when Cloudflare is used; same-key replay still returns the original row.
+
+Verification: 244 backend tests pass, including mocked Cloudflare success, quota,
+credentials/access, timeout/transport ambiguity, malformed output, prompt/size
+limits, redirects, provider provenance and one-call replay. External HTTP and
+Gemini clients are blocked by the test fixture. No real Cloudflare account or
+image request was accessed during implementation. No migration was needed.
+
+Follow [Cloudflare setup](CLOUDFLARE_SETUP.md). The Free-plan flag is user confirmation,
+not an automatic billing-subscription check. Keep the account on Free; quota
+exhaustion stops requests. The fake diagnostic remains the default; an explicit
+`--cloudflare` option performs one quota-consuming test after configuration.
+Endpoints, cleanup/recovery and UI remain next. Paid APIs still require a budget.
+
 ## Current progress — validation and fake pipeline
 
 Implemented the second increment on 2026-10-21:

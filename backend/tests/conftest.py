@@ -11,6 +11,9 @@ os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 os.environ["JWT_SECRET"] = "isolated-test-secret"
 os.environ["GEMINI_API_KEY"] = ""
+os.environ["IMAGE_PROVIDER"] = "fake"
+os.environ["CLOUDFLARE_API_TOKEN"] = ""
+os.environ["CLOUDFLARE_FREE_PLAN_CONFIRMED"] = "false"
 
 from app.core.database import Base, get_db
 from app.main import app
@@ -24,6 +27,10 @@ def prevent_live_ai_calls(monkeypatch):
         raise AssertionError("Live Gemini clients are forbidden in automated tests")
 
     monkeypatch.setattr(genai, "Client", blocked)
+    # MockTransport and FastAPI TestClient transports remain available, while
+    # accidental external HTTP calls (including Cloudflare) are forbidden.
+    import httpx
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", blocked)
 
 
 @pytest.fixture

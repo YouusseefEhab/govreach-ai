@@ -1,4 +1,4 @@
-"""Image-provider boundary. No real or paid provider is implemented here."""
+"""Image-provider boundary and deterministic local test provider."""
 
 from dataclasses import dataclass
 from io import BytesIO
