@@ -30,8 +30,10 @@ The [Phase 5 image foundation](docs/PHASE_5.md) adds separate request metadata,
 source snapshots, request identity and local byte storage. Decoded-image validation
 and a fake-default pipeline are available, with a rollback-only diagnostic.
 A [Cloudflare image adapter](docs/CLOUDFLARE_SETUP.md) is implemented and mock-tested;
-credentials/Free-plan access need setup. Image APIs, cleanup integration and UI are
-not available yet. Paid image APIs are deferred. Video, authentication, publishing
+the user confirmed its explicit live connection diagnostic passed. Image generation,
+history, verified preview/download, independent review and local cleanup are
+available through the API. The image frontend is next. Paid image APIs are deferred.
+Video, authentication, publishing
 and cloud deployment remain later.
 
 ## Technology and architecture
@@ -131,6 +133,7 @@ prove server cancellation; inspect saved history before submitting again.
 .venv/Scripts/python.exe -m alembic check
 .venv/Scripts/python.exe -m scripts.check_generation_api
 .venv/Scripts/python.exe -m scripts.check_image_pipeline
+.venv/Scripts/python.exe -m scripts.check_image_api
 
 # From frontend
 npm run lint
@@ -138,7 +141,9 @@ npm test
 npm run build
 ```
 
-The backend has 244 passing tests. The image diagnostic is fake by default;
+The backend has 260 passing tests. Image generation/history/file/review endpoints
+and local cleanup are implemented; see [image API testing](docs/IMAGE_API_TESTING.md).
+The image diagnostic is fake by default;
 `--cloudflare` makes one explicit image request after Free-plan configuration. Live text
 diagnostics are opt-in: add `--live` to
 `scripts.check_generation_api` for one provider request or run

@@ -2,6 +2,36 @@
 
 Prepared 2026-10-21. **Foundation approved and implemented; paid usage remains unapproved.**
 
+## Latest progress — image API and cleanup
+
+Implemented generation, paginated history, metadata, verified preview/download and
+independent image review endpoints. See [image API testing](IMAGE_API_TESTING.md)
+for Swagger steps and maintenance. New successful generation returns 201; every
+same-key/same-input replay returns 200 with the saved state and no new provider
+call, including reserved/generating/failed/outcome_unknown. Different inputs with
+the same key return 409. Review changes accept only review_status. Approval needs
+a ready, verified file and unchanged approved source; stale history/files remain
+inspectable and are never represented as current approved material.
+
+Campaign deletion collects file keys under the campaign lock, preserves the DB
+cascade and deletes bytes after commit. Cleanup errors leave logged orphans.
+The reconciliation command defaults to inspection; deletion/recovery requires an
+offline maintenance window, protects referenced/young files and never retries a
+provider call. DB and filesystem operations are still not atomic. Local prototype
+routes have no authentication; these are not public publishing endpoints.
+
+Verification: **260 backend tests pass**. The PostgreSQL API diagnostic passed
+generation/replay, preview/download, review, stale-source rejection and cascade/
+file cleanup with fake images; diagnostic rows rolled back and temporary files
+removed. External AI requests are blocked in automated tests. No new migration.
+
+The user also reported the explicit Cloudflare pipeline diagnostic passed after
+private credential setup: real image verification/reload, same-key replay and
+stale-source detection. Its image was temporary, so this is connection evidence,
+not a human visual-quality evaluation. No live call was made for this API increment.
+Next: bilingual image frontend, then a bounded visual pilot. Keyboard testing
+remains deferred. Older progress sections below describe earlier increments.
+
 ## Updated provider decision — Cloudflare Free first
 
 The user chose Cloudflare Workers AI with FLUX.1 Schnell for images until a later
@@ -25,7 +55,8 @@ Follow [Cloudflare setup](CLOUDFLARE_SETUP.md). The Free-plan flag is user confi
 not an automatic billing-subscription check. Keep the account on Free; quota
 exhaustion stops requests. The fake diagnostic remains the default; an explicit
 `--cloudflare` option performs one quota-consuming test after configuration.
-Endpoints, cleanup/recovery and UI remain next. Paid APIs still require a budget.
+Endpoints and cleanup/recovery are now implemented as recorded above; image UI
+remains next. Paid APIs still require a budget.
 
 ## Current progress — validation and fake pipeline
 
@@ -265,7 +296,7 @@ and document any prototype cleanup limits instead of promising atomic deletion.
 
 ## Proposed API contract
 
-These routes are proposals, not existing endpoints:
+These routes are now implemented (the table began as the proposed contract):
 
 | Method / route | Purpose |
 | --- | --- |
@@ -331,7 +362,8 @@ does not regress text functionality. Failed generations do not create ready imag
 1. Media foundation and the proposed initial architecture are approved. Keep the
    Graduation 1 scope/deadline tradeoff visible rather than claiming university approval.
 2. Decoded-image validation and a fake provider pipeline are implemented. Next:
-   API routes and cleanup/recovery integration, then the real adapter and UI.
+   The Cloudflare adapter, API routes and cleanup/recovery are implemented. Image
+   UI and visual evaluation remain.
 3. Verify image API access and agree a live-call budget before paid testing.
 4. Text-free square images are approved as the initial format; overlays remain later.
 

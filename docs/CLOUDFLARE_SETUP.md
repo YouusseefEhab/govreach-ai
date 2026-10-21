@@ -75,12 +75,15 @@ Once configured, from `backend`:
 The diagnostic uses synthetic seat-belt text, tests saved metadata/replay, rolls
 back its database rows and removes its temporary files. It does not save a lasting
 image to view or approve. A same-key replay inside the check must not cause another
-provider call. No real Cloudflare requests were run during implementation.
+provider call. The user has now reported this explicit Cloudflare diagnostic
+passed after configuring private credentials. It verifies the connection and
+pipeline, not human visual quality; the temporary image is removed on exit.
 
 401/403/404: check token, account scope, plan and model access. 429: quota/rate
 limit; wait/check the dashboard, with no automatic paid continuation. Timeouts or
 lost connections leave an inspectable ambiguous outcome; there is no automatic
 retry. Errors do not include token values or raw provider response bodies.
 
-Next implementation work: image endpoints, file cleanup/recovery and bilingual UI.
-The Cloudflare credential test can happen before those screens are available.
+Image endpoints and file cleanup/recovery are now implemented. Follow
+[image API testing](IMAGE_API_TESTING.md) for Swagger steps. The bilingual image
+UI remains next.

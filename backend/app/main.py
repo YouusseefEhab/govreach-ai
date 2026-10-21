@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.campaigns import router as campaigns_router
 from app.api.v1.generation import router as generation_router
+from app.api.v1.images import router as images_router
 
 
 app = FastAPI(
@@ -25,6 +26,7 @@ app.add_middleware(
 
 app.include_router(campaigns_router, prefix="/api/v1")
 app.include_router(generation_router, prefix="/api/v1")
+app.include_router(images_router, prefix="/api/v1")
 
 
 @app.get("/")
