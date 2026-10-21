@@ -77,8 +77,9 @@ UI switch, persistent preference, translated labels/errors/dates, and exact-text
 field/package copy controls with honest clipboard failure feedback. Interface
 direction remains independent of package direction; forms keep their identity
 when switching. Responsive/keyboard code review added focusable table scrolling,
-source wrapping and improved small-text contrast. Browser checks for new controls,
-mobile widths, and keyboard operation remain pending. Existing backend contracts and database
+source wrapping and improved small-text contrast. The user confirmed the mobile
+checks work and deferred keyboard testing until later. Exact devices/widths were
+not specified. Existing backend contracts and database
 schema are unchanged. Full reloads/multiple tabs have no shared pending guard;
 backend idempotency and cancellation remain outside the current API.
 
@@ -88,8 +89,8 @@ mock fetch and cover pagination, malformed data, validation, HTTP failures,
 cancellation, no automatic replay, and empty 204 responses. Server-rendered route
 tests cover Arabic navigation, mixed-language titles, pagination controls, empty
 lists, and missing pages. They do not replace browser interaction/visual checks.
-The browser-control runtime failed to initialize, so visual, keyboard interaction,
-and mobile viewport checks remain pending.
+The browser-control runtime failed to initialize; mobile verification was later
+supplied by the user, while keyboard testing remains pending.
 Local HTTP checks returned 200 for `/` and `/campaigns`; FastAPI `/health` and
 the campaign-list endpoint returned 200 with the correct localhost:5173 CORS
 origin. The initial list read two existing campaigns. Creation was then checked
@@ -122,7 +123,8 @@ The user then confirmed the complete core workflow passes manual testing, includ
 persistence, review/draft reset, language-package preservation, and confirmations.
 New tests cover translated screens, catalogue coverage, preference persistence,
 Unicode copying and clipboard denial. Browser tooling still cannot initialize;
-visual and keyboard checks for this increment remain pending.
+The user subsequently confirmed all mobile checks work, excluding keyboard
+testing, which they deferred. Keyboard sign-off remains pending.
 See [Phase 4 verification](PHASE_4_VERIFICATION.md) for the focused checklist.
 See the frontend README for local setup and verification commands.
 

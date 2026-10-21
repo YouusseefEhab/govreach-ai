@@ -115,7 +115,8 @@ Focus restoration and click/pending behavior still need browser interaction chec
 The user subsequently confirmed the full core workflow works, including review,
 refresh, draft reset, unsaved-edit warnings, and deletion confirmation. See the
 [verification record](PHASE_4_VERIFICATION.md) for evidence and the remaining
-new-control/mobile/keyboard checklist.
+keyboard checklist. The user also confirmed mobile controls/layout work; device
+and viewport specifics were not supplied. Keyboard testing is deferred until later.
 
 Generation walkthrough (a real provider request may consume quota/credits): open a
 test traffic-safety campaign, set audience/tone, and generate once. Wait without

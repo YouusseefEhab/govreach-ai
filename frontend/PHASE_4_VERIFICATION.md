@@ -8,6 +8,11 @@ persistence after reload, draft reset after editing approved text, other-languag
 preservation, unsaved-edit warnings, and deletion confirmation. This is user-reported
 manual verification, not an automated browser run.
 
+The user subsequently confirmed that all mobile checks worked, excluding keyboard
+testing, which they chose to do later. Mobile UI/control checks are therefore
+recorded as user-confirmed passes. Device, browser and exact viewport dimensions
+were not supplied; no specific device/width coverage is claimed.
+
 ## Automated evidence
 
 - 46 frontend tests: API handling, partial updates, review separation, validation,
@@ -38,8 +43,9 @@ screen-reader accessibility certification.
 
 ## Remaining manual checks
 
-Browser control cannot initialize (`failed to write kernel assets`), so these new
-controls and layouts still require checks in the running app:
+Browser control cannot initialize (`failed to write kernel assets`). The following
+language/copy/mobile checklist was covered by the user's mobile test report;
+keyboard testing remains pending:
 
 1. Switch to English; check labels/LTR. Refresh to confirm preference persistence,
    then return to Arabic. Campaign language must stay unchanged. Switch while
@@ -50,10 +56,10 @@ controls and layouts still require checks in the running app:
 3. At about 375 px and 768 px, inspect both UI languages, forms, cards, source text
    and editor stacking. Tables may scroll inside their container; the whole page
    should not overflow horizontally.
-4. Use Tab/Shift+Tab/Enter/Space through skip navigation, language selector, forms,
+4. **Pending — deferred by the user:** use Tab/Shift+Tab/Enter/Space through skip navigation, language selector, forms,
    copy buttons, source disclosures, review and confirmations. Focus must be
    visible. Cancel a navigation warning and retain edits.
 
-Phase 4 features are implemented. Final sign-off is pending these new-control,
-mobile and keyboard checks. Deployment, authentication, media generation and
+Phase 4 features are implemented and mobile checks are user-confirmed. Final
+keyboard accessibility sign-off remains pending. Deployment, authentication, media generation and
 institutional publishing are separate later milestones.

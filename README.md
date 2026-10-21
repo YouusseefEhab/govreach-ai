@@ -24,8 +24,8 @@ campaign creation/editing, saved campaign details, and confirmed deletion.
 Text generation and saved draft/source display are available in the UI.
 The UI also supports partial content edits, draft reset, and separate per-language
 approval/rejection, an English interface switch, and exact-text copy controls.
-The user confirmed the core workflow; final mobile/keyboard and new-control checks
-are recorded in the [Phase 4 verification checklist](frontend/PHASE_4_VERIFICATION.md).
+The user confirmed the core workflow and mobile checks; keyboard testing is
+deferred. See the [Phase 4 verification record](frontend/PHASE_4_VERIFICATION.md).
 Images, video, authentication, publishing, and cloud deployment
 are future milestones.
 
