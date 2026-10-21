@@ -35,7 +35,7 @@ def main():
     findings = []
     for name in paths:
         path = Path(name)
-        if set(path.parts) & EXCLUDED_PARTS or (path.name.startswith(".env") and path.name != ".env.example"):
+        if path.parts[:2] == ("data", "media") or set(path.parts) & EXCLUDED_PARTS or (path.name.startswith(".env") and path.name != ".env.example"):
             findings.append((name, "excluded local file"))
             continue
         absolute = ROOT / path

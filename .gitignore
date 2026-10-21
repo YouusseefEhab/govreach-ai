@@ -26,6 +26,7 @@ Thumbs.db
 data/raw/*
 data/processed/*
 data/tmp/*
+data/media/
 
 # Logs
 *.log

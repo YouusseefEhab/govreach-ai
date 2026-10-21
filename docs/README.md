@@ -10,7 +10,7 @@
 | [Review findings](../backend/evaluation/review_20261013.json) | Proposed corrections |
 | [Phase 4](../frontend/PHASE_4.md) | Frontend implementation plan |
 | [Phase 4 verification](../frontend/PHASE_4_VERIFICATION.md) | User-confirmed workflow/mobile checks; keyboard pending |
-| [Phase 5 proposal](PHASE_5.md) | Image workflow, provider/storage choices, budget and test gates; awaiting confirmation |
+| [Phase 5](PHASE_5.md) | Image foundation implemented; provider pipeline/API/UI pending; paid testing awaits budget |
 
 Phase documents retain development history and superseded observations. Use the
 latest progress sections and root README for current status. Evaluation IDs refer

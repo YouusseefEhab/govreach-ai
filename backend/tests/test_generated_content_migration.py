@@ -25,7 +25,7 @@ def test_migration_preserves_existing_campaign_and_matches_models(tmp_path, monk
         command.upgrade(config, "head")
         with engine.connect() as connection:
             assert connection.execute(text("SELECT title FROM campaigns WHERE id=1")).scalar() == "Existing campaign"
-            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "b7f23e8d10a4"
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "c9e51a70d682"
             foreign_key = inspect(connection).get_foreign_keys("generated_contents")[0]
             assert foreign_key["referred_table"] == "campaigns"
             assert foreign_key["options"]["ondelete"] == "CASCADE"

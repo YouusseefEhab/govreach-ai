@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     gemini_api_key: SecretStr = SecretStr("")
     gemini_model: str = Field(default="gemini-3.5-flash-lite", min_length=1)
     gemini_timeout_seconds: float = Field(default=90, gt=0, le=120)
+    media_root: Path = PROJECT_ROOT / "data" / "media"
+    media_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=50 * 1024 * 1024)
 
     model_config = SettingsConfigDict(
         env_file=PROJECT_ROOT / ".env",

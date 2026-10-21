@@ -26,8 +26,10 @@ The UI also supports partial content edits, draft reset, and separate per-langua
 approval/rejection, an English interface switch, and exact-text copy controls.
 The user confirmed the core workflow and mobile checks; keyboard testing is
 deferred. See the [Phase 4 verification record](frontend/PHASE_4_VERIFICATION.md).
-Images, video, authentication, publishing, and cloud deployment
-are future milestones.
+The [Phase 5 image foundation](docs/PHASE_5.md) adds separate request metadata,
+source snapshots, request identity and local byte storage. Image generation APIs,
+decoded-image validation and image UI are not available yet; no paid image calls
+are enabled. Video, authentication, publishing and cloud deployment remain later.
 
 ## Technology and architecture
 
@@ -132,7 +134,7 @@ npm test
 npm run build
 ```
 
-The backend has 165 passing tests. Live diagnostics are opt-in: add `--live` to
+The backend has 191 passing tests. Live diagnostics are opt-in: add `--live` to
 `scripts.check_generation_api` for one provider request or run
 `scripts.evaluate_text_generation --live` for three. Quotas/charges depend on API
 project billing. Diagnostic rows are rolled back; captured IDs are not persistent.

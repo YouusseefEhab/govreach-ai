@@ -1,6 +1,42 @@
 # Phase 5 proposal: reviewed campaign images
 
-Prepared 2026-10-21. **Planning only — architecture and paid usage await confirmation.**
+Prepared 2026-10-21. **Foundation approved and implemented; paid usage remains unapproved.**
+
+## Progress — first implementation increment
+
+The user approved the proposed text-free square-image foundation, separate image
+table, local storage, and separate Gemini image adapter. This increment implements
+only persistence/storage and provider-free reservation rules. The real adapter,
+image decoding, generation/file/review API routes and image UI follow later.
+
+- Added `image_generations` through Alembic revision `c9e51a70d682` (after
+  `b7f23e8d10a4`). Existing text schema/constraints are unchanged.
+- Persisted campaign-scoped request identity/hash, source snapshots/hash/references,
+  draft review status and request lifecycle. Same-key replay returns the original
+  row; conflicting inputs are rejected. A conditional update claims a reserved
+  request once; interrupted outcomes cannot be automatically reclaimed.
+- Reservation accepts approved traffic-safety text belonging to the campaign.
+  Source eligibility detects subsequent text edits or loss of approval.
+- Added local storage behind a protocol: generated keys, PNG/JPEG byte containers,
+  bounded writes/reads, checksum, traversal/symlink rejection and idempotent deletion.
+  Storage is intentionally an opaque-byte boundary, **not an image decoder**.
+  Actual pixel/MIME/dimension verification is required before exposing an API or
+  marking an artifact ready in the upcoming pipeline.
+- Media defaults to ignored `data/media`; no directory is created at import.
+  Added `MEDIA_MAX_BYTES` example configuration and a repository media-file guard.
+  No production image files were created. Cascade/file reconciliation is still
+  pending and must be integrated before ready images can be generated/deleted.
+- Provider/model are explicitly fake in reservations for this increment. There is
+  no live image implementation or paid image request path yet.
+
+Verification: all 191 backend tests pass (26 new tests), including disposable
+migration upgrade/downgrade, preserved text rows, identity/state constraints,
+snapshots, source eligibility, cascade isolation and temporary fake PNG storage.
+The PostgreSQL migration was applied; Alembic reports no drift. Before/after hashes
+confirmed preservation of 3 existing campaigns and 8 text packages. The existing
+fake-provider PostgreSQL text API diagnostic also passed and rolled back its rows.
+No real Gemini calls or billing changes were made. No new frontend behavior in
+this increment. Keyboard testing remains deferred.
 
 ## Goal and scope
 
@@ -225,13 +261,14 @@ does not regress text functionality. Failed generations do not create ready imag
 
 ## Decisions still open
 
-1. Approve media as the next development scope, or prioritise Graduation 1 writing,
-   evaluation and reproducibility work first.
-2. Confirm separate image table + local storage adapter + bounded synchronous
-   requests with persistent identity, rather than a queue/cloud service now.
+1. Media foundation and the proposed initial architecture are approved. Keep the
+   Graduation 1 scope/deadline tradeoff visible rather than claiming university approval.
+2. Next: implement decoded-image validation and a fake provider pipeline, then API
+   routes and cleanup/recovery integration, followed by the real adapter and UI.
 3. Verify image API access and agree a live-call budget before paid testing.
-4. Confirm text-free square images first; bilingual poster overlays remain later.
+4. Text-free square images are approved as the initial format; overlays remain later.
 
-No database, provider settings, billing, storage infrastructure or application code
-was changed to prepare this plan. Recheck linked provider documentation at the
-capability gate because models and prices can change.
+The original proposal changed documentation only. The progress section records
+subsequent implementation and the applied additive database migration. Billing and
+real provider configuration remain unchanged. Recheck linked provider documentation
+at the capability gate because models and prices can change.
