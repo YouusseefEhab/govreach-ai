@@ -52,3 +52,7 @@ export interface GenerationResponse {
   campaign_id: number
   contents: StoredContent[]
 }
+
+export type ContentUpdate =
+  | { content: Partial<TextPackage>; review_status?: never }
+  | { review_status: StoredContent['review_status']; content?: never }

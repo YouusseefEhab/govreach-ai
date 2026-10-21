@@ -67,12 +67,17 @@ saved-history checks before resubmitting after errors. Unsupported campaigns sho
 an explanation instead of allowing generation. The initial Step 4 display adds
 paginated five-field cards with independent RTL/LTR, review status, sources, and
 generation metadata. Cards are individual content records rather than assumed
-complete bilingual groups. Content editing/review, copying, more history detail,
+complete bilingual groups. Step 5 now adds a per-package editor with partial saves,
+saved-preview/source context, confirmed draft reset, and separate approval/rejection.
+Dirty/pending forms block review, failures preserve edits, and successful mutations
+refresh the affected content/history caches. React Router uses its data-router
+provider to support its built-in unsaved navigation blocker; reload/close uses the
+native beforeunload warning. Copying, more history detail, browser verification,
 and an English UI switch remain pending. Existing backend contracts and database
 schema are unchanged. Full reloads/multiple tabs have no shared pending guard;
 backend idempotency and cancellation remain outside the current API.
 
-Verification: production build and lint passed; 31 frontend tests passed. The 165
+Verification: production build and lint passed; 38 frontend tests passed. The 165
 backend tests passed during the preceding campaign-management increment. API client tests
 mock fetch and cover pagination, malformed data, validation, HTTP failures,
 cancellation, no automatic replay, and empty 204 responses. Server-rendered route
@@ -100,6 +105,14 @@ retrieval/edit/review 200, and cascade deletion 204/404; all diagnostic writes r
 back. No live Gemini call was made. Browser generation clicks, navigation during
 pending, and visual layouts remain unverified by automation because its runtime
 could not initialize.
+Editor tests cover all field limits, partial PATCHes, separate edit/review requests,
+draft-reset response checks, failed reviews without retries, dirty/pending disabled
+controls, and a data-router editor reload render. Live GETs retrieved existing
+content records; no user packages were edited. The fake-provider PostgreSQL
+diagnostic again verified edit/review/reset behavior and rolled back all writes.
+Actual form clicks, navigation-blocker interaction, and close/reload prompts still
+need browser checks. Build emits a non-blocking >500 kB chunk advisory; splitting
+is deferred to polish rather than changing implementation scope here.
 See the frontend README for local setup and verification commands.
 
 | Step | Work | Acceptance result |

@@ -114,6 +114,12 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .content-sources { border-top: 1px solid #e0e6ef; padding-top: 16px; font-size: 13px; }
 summary { cursor: pointer; }
 .generation-metadata dd { margin: 4px 0; overflow-wrap: anywhere; }
+.content-edit-link { margin-top: 20px; }
+.editor-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.editor-grid form { margin-top: 24px; }
+.review-actions { border-top: 1px solid #e0e6ef; margin-top: 28px; padding-top: 24px; }
+.review-actions p { margin-bottom: 16px; }
+@media (max-width: 1000px) { .editor-grid { grid-template-columns: 1fr; } }
 .skip-link { position: fixed; top: -100px; inset-inline-start: 20px; background: #182a3c; color: white; padding: 12px; z-index: 10; }
 .skip-link:focus { top: 12px; }
 @media (min-width: 1500px) { .welcome-panel { padding: 64px; } }

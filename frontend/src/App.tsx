@@ -5,6 +5,7 @@ import Campaigns from './pages/Campaigns'
 import CampaignForm from './components/CampaignForm'
 import EditCampaign from './pages/EditCampaign'
 import CampaignDetail from './pages/CampaignDetail'
+import ContentEditor from './pages/ContentEditor'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="campaigns/new" element={<CampaignForm key="new" />} />
         <Route path="campaigns/:campaignId" element={<CampaignDetail />} />
         <Route path="campaigns/:campaignId/edit" element={<EditCampaign />} />
+        <Route path="contents/:contentId" element={<ContentEditor />} />
         <Route path="*" element={
           <section className="empty-state">
             <h1>الصفحة مش موجودة</h1>

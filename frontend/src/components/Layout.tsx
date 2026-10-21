@@ -15,7 +15,7 @@ export default function Layout() {
       mainRef.current?.focus()
       previousPath.current = pathname
     }
-    document.title = `${pathname.startsWith('/campaigns') ? messages.campaigns : messages.home} | GovReach AI`
+    document.title = `${pathname.startsWith('/contents/') ? 'مراجعة المحتوى' : pathname.startsWith('/campaigns') ? messages.campaigns : messages.home} | GovReach AI`
   }, [pathname])
 
   const available = health.isSuccess && health.data.status === 'healthy'

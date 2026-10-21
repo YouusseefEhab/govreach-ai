@@ -1,4 +1,5 @@
 import type { StoredContent, TextPackage } from '../services/types'
+import { Link } from 'react-router-dom'
 
 const fieldLabels: Record<keyof TextPackage, string> = {
   headline: 'العنوان', slogan: 'الشعار', awareness_message: 'رسالة التوعية',
@@ -11,7 +12,7 @@ function sourceUrl(value: unknown): string | undefined {
   try { const url = new URL(value); return url.protocol === 'https:' ? url.href : undefined } catch { return undefined }
 }
 
-export default function ContentCard({ item }: { item: StoredContent }) {
+export default function ContentCard({ item, showEditorLink = true }: { item: StoredContent; showEditorLink?: boolean }) {
   return (
     <article className="panel content-card" aria-label={`${item.language === 'arabic' ? 'المحتوى العربي' : 'English content'} — ${item.id}`}>
       <div className="content-card-heading">
@@ -42,6 +43,7 @@ export default function ContentCard({ item }: { item: StoredContent }) {
           <div><dt>نسخة التعليمات</dt><dd><bdi>{item.prompt_version}</bdi></dd></div>
         </dl>
       </details>
+      {showEditorLink && <Link className="button secondary content-edit-link" to={`/contents/${item.id}`}>تعديل ومراجعة النسخة</Link>}
     </article>
   )
 }

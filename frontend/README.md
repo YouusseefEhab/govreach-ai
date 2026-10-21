@@ -3,8 +3,8 @@
 React + TypeScript + Vite application for the graduation project. The current
 implementation contains an Arabic RTL layout, welcome page, backend health
 check, paginated campaign list, shared campaign create/edit form, saved campaign
-details, confirmed deletion, text generation, and paginated saved text/source cards.
-Content editing/review and further interface work are planned in
+details, confirmed deletion, text generation, paginated saved text/source cards,
+and per-language content editing/approval/rejection. Further interface work is planned in
 [Phase 4](PHASE_4.md).
 
 ## Development
@@ -23,7 +23,7 @@ Never put provider keys in browser code. The backend allows the frontend origin
 `http://localhost:5173`; use that address rather than `127.0.0.1`.
 
 Routes: `/`, `/campaigns` (optional `?page=2`), `/campaigns/new`, and
-`/campaigns/:campaignId`, and `/campaigns/:campaignId/edit`.
+`/campaigns/:campaignId`, `/campaigns/:campaignId/edit`, and `/contents/:contentId`.
 Create collects title, objective, and language, with
 traffic safety fixed as the initial domain. It saves once per submission, then
 opens the saved details. Errors preserve the form; after a lost connection check
@@ -59,6 +59,25 @@ complete generation groups; a bilingual pair may span pages. Group UUIDs identif
 related records. Source links only accept HTTPS, and text is rendered as plain
 text. References were supplied to generation and do not certify the output.
 
+## Content editing and review
+
+Choose **تعديل ومراجعة النسخة** on a saved package. Edit any of its five fields;
+only changed fields are PATCHed. Save waits for the server, updates the saved
+preview, and resets the selected package to draft. Existing metadata/source
+snapshots and other language packages are preserved. Failed saves retain edits.
+
+Approve/reject are separate requests and are disabled while the form is dirty or
+a request is pending. Review status changes only after a successful server
+response. Approval affects only this package; it does not publish or certify it.
+The editor has no reviewer identity/timestamp or per-edit audit log because the
+backend does not store those values.
+
+The existing React Router now uses `createBrowserRouter`/`RouterProvider` so its
+built-in `useBlocker` can warn before internal navigation with unsaved edits.
+`beforeunload` provides the browser's native warning on reload/close. Choosing
+to discard allows leaving; pending requests must finish before internal departure.
+The native warning can still be overridden by the user/browser.
+
 ## Verification
 
 ```powershell
@@ -83,7 +102,7 @@ confirmation and cancel (campaign must remain), then confirm deletion (it must
 disappear). Never use an important campaign for the deletion walkthrough.
 Live API verification used the real frontend client to create/read/partially edit/
 delete only disposable campaigns, checking preserved fields and a final 404.
-No Gemini calls were made. Automated checks: 31 frontend tests, frontend lint/build,
+No Gemini calls were made. Automated checks: 38 frontend tests, frontend lint/build,
 and the PostgreSQL fake-provider API diagnostic passed. The existing backend suite
 also passed its 165 tests in the preceding campaign-management increment.
 Live GET checks retrieved existing histories through the frontend client.
@@ -94,4 +113,15 @@ test traffic-safety campaign, set audience/tone, and generate once. Wait without
 resubmitting. Confirm saved packages and sources, reload, and verify the same IDs
 remain in history. On an error, check saved content before deciding to submit again.
 Routine automated tests use mocked fetch or a fake provider, not Gemini.
+
+Editor walkthrough: open a saved test package, change one field, and confirm review
+buttons are disabled. Try leaving and choose **كمّل المراجعة** to keep edits. Save;
+check draft status and preserved other fields, approve separately, reload, and check
+the saved status. Edit and save again; status must return to draft. Check the other
+language package remains unchanged. Try rejecting separately too. These browser
+click/navigation checks remain manual; automated tests cover API/schema/markup
+behavior. Live GETs confirmed editor retrieval against existing packages without
+editing them; the fake-provider diagnostic checked editing/review with rolled-back
+test rows. Build currently has a non-blocking advisory about its >500 kB JS chunk;
+route splitting can be addressed in the later performance/polish increment.
 See the [project README](../README.md) for backend setup and scope.

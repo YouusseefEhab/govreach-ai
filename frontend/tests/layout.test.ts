@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { MemoryRouter } from 'react-router-dom'
+import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createServer } from 'vite'
 
@@ -11,6 +11,7 @@ let App: () => ReturnType<typeof createElement>
 let renderConfirmation: (busy: boolean) => string
 let renderGeneration: (busy: boolean, disabled?: boolean) => string
 let renderContent: () => string
+let renderReview: (dirty: boolean, busy: boolean, status?: string) => string
 
 before(async () => {
   server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
@@ -24,12 +25,16 @@ before(async () => {
     busy, disabled, submit: async () => { throw new Error('Rendering must never submit') },
   }))
   const { default: ContentCard } = await server.ssrLoadModule('/src/components/ContentCard.tsx')
-  renderContent = () => renderToStaticMarkup(createElement(ContentCard, { item: {
+  renderContent = () => renderToStaticMarkup(createElement(ContentCard, { showEditorLink: false, item: {
     id: 15, campaign_id: 27, generation_id: 'f23507de-84ac-46a6-9f07-a44918edf4b2', language: 'english',
     review_status: 'draft', provider: 'fake', model: 'test', prompt_version: 'test', created_at: '2026-10-21T12:00:00Z',
     source_references: [{ title: '<script>unsafe</script>', url: 'javascript:alert(1)' }],
     content: { headline: '<script>text</script>', slogan: 'Slogan', awareness_message: 'Message', social_caption: 'Caption', call_to_action: 'Action' },
   } }))
+  const { ReviewActions } = await server.ssrLoadModule('/src/pages/ContentEditor.tsx')
+  renderReview = (dirty, busy, status = 'draft') => renderToStaticMarkup(createElement(ReviewActions, {
+    dirty, busy, status, review: () => { throw new Error('Rendering must not review content') },
+  }))
 })
 after(async () => { await server?.close() })
 
@@ -143,4 +148,33 @@ test('content uses its own direction and plain text; unsafe source links are not
   assert.ok(html.includes('مش تدقيق تلقائي'))
   assert.ok(!html.includes('<script>'))
   assert.ok(!html.includes('href="javascript:'))
+})
+
+test('review controls require saved content and remain disabled while saving', () => {
+  for (const [dirty, busy] of [[true, false], [false, true]]) {
+    assert.equal((renderReview(dirty, busy).match(/disabled=""/g) ?? []).length, 2)
+  }
+  assert.ok(renderReview(true, false).includes('احفظ التعديلات الأول'))
+  assert.equal((renderReview(false, false).match(/disabled=""/g) ?? []).length, 0)
+  assert.equal((renderReview(false, false, 'approved').match(/disabled=""/g) ?? []).length, 1)
+})
+
+test('content editor reload route shows stored fields, status and source context', () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  client.setQueryData(['health'], { status: 'healthy' })
+  client.setQueryData(['content', 15], {
+    id: 15, campaign_id: 27, generation_id: 'f23507de-84ac-46a6-9f07-a44918edf4b2', language: 'english',
+    review_status: 'approved', content_type: 'text_package', provider: 'fake', model: 'test', prompt_version: 'test',
+    created_at: '2026-10-21T12:00:00Z', input_snapshot: {}, source_references: [],
+    content: { headline: 'Saved headline', slogan: 'Saved slogan', awareness_message: 'Saved message', social_caption: 'Caption', call_to_action: 'Action' },
+  })
+  const router = createMemoryRouter([{ path: '*', element: createElement(App) }], { initialEntries: ['/contents/15'] })
+  try {
+    const html = renderToStaticMarkup(createElement(QueryClientProvider, { client }, createElement(RouterProvider, { router })))
+    assert.ok(html.includes('Saved headline'))
+    assert.ok(html.includes('lang="en" dir="ltr"'))
+    assert.ok(html.includes('معتمد'))
+    assert.ok(html.includes('آخر نسخة محفوظة'))
+    assert.ok(html.includes('بيرجّع النسخة لمسودة'))
+  } finally { router.dispose(); client.clear() }
 })

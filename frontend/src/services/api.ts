@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Campaign, CampaignCreate, CampaignUpdate, GenerationRequest, GenerationResponse, StoredContent } from './types.ts'
+import type { Campaign, CampaignCreate, CampaignUpdate, ContentUpdate, GenerationRequest, GenerationResponse, StoredContent } from './types.ts'
 
 const configuredBase = import.meta.env?.VITE_API_BASE_URL?.trim()
 export const API_BASE_URL = (configuredBase || 'http://localhost:8000').replace(/\/+$/, '')
@@ -141,6 +141,15 @@ const storedContentSchema = z.object({
   source_references: z.array(z.record(z.string(), z.unknown())),
   created_at: z.iso.datetime({ offset: true }),
 })
+
+export function getContent(id: number, signal?: AbortSignal): Promise<StoredContent> {
+  return apiRequest(`/api/v1/contents/${id}`, { signal }, (body) => storedContentSchema.refine((item) => item.id === id).parse(body))
+}
+
+export function updateContent(id: number, data: ContentUpdate): Promise<StoredContent> {
+  return apiRequest(`/api/v1/contents/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, (body) =>
+    storedContentSchema.refine((item) => item.id === id && item.review_status === (data.content ? 'draft' : data.review_status)).parse(body))
+}
 
 export function listContents(id: number, skip: number, limit: number, signal?: AbortSignal): Promise<StoredContent[]> {
   const params = new URLSearchParams({ skip: String(skip), limit: String(limit) })

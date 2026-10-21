@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { deleteCampaign } from '../services/api'
 import { campaignQuery } from '../queries'
-import type { Campaign } from '../services/types'
+import type { Campaign, StoredContent } from '../services/types'
 
 export function DeleteConfirmation({ title, busy, error, confirm, cancel }: {
   title: string; busy: boolean; error?: Error; confirm: () => void; cancel: () => void
@@ -37,6 +37,10 @@ export default function DeleteCampaign({ campaign }: { campaign: Campaign }) {
       client.removeQueries({ queryKey: campaignQuery(campaign.id).queryKey })
       await client.cancelQueries({ queryKey: ['campaign-contents', campaign.id] })
       client.removeQueries({ queryKey: ['campaign-contents', campaign.id] })
+      const contentFilter = { predicate: (query: { queryKey: readonly unknown[]; state: { data: unknown } }) =>
+        query.queryKey[0] === 'content' && (query.state.data as StoredContent | undefined)?.campaign_id === campaign.id }
+      await client.cancelQueries(contentFilter)
+      client.removeQueries(contentFilter)
       await client.invalidateQueries({ queryKey: ['campaigns'] })
     },
   })
