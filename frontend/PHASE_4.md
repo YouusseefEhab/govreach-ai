@@ -57,10 +57,15 @@ loading/error/empty states, and isolated Arabic/English titles. The next increme
 adds campaign creation with React Hook Form/Zod, explicit saving, pending guards,
 retained values on errors, and a details route that can reload the saved brief.
 List titles link to details; successful creation invalidates the campaign list.
-Campaign edit/delete, generation, content history/review, and an English UI switch
+Campaign editing and confirmed deletion are now implemented. Create/edit share a
+form; edit prefills the saved brief and PATCHes only changed fields. Domain and
+generated history stay unchanged. Deletion explains the cascade, requires a second
+explicit action, disables confirmation controls while pending, and refreshes the
+list after success. Generation, content history/review, and an English UI switch
 remain pending. Existing backend contracts and database schema are unchanged.
 
-Verification: production build and lint passed; 18 tests passed. API client tests
+Verification: production build and lint passed; 23 frontend tests and 165 backend
+tests passed. API client tests
 mock fetch and cover pagination, malformed data, validation, HTTP failures,
 cancellation, no automatic replay, and empty 204 responses. Server-rendered route
 tests cover Arabic navigation, mixed-language titles, pagination controls, empty
@@ -72,8 +77,12 @@ the campaign-list endpoint returned 200 with the correct localhost:5173 CORS
 origin. The initial list read two existing campaigns. Creation was then checked
 with the real frontend API client: create a disposable campaign, retrieve it twice,
 find it in the list, and delete only that test campaign. Existing campaigns were
-preserved; no Gemini requests were made. A real browser form submission and reload
-walkthrough remain pending.
+preserved; no Gemini requests were made. The user confirmed campaign creation in
+the browser. A further disposable campaign check verified title-only editing,
+language editing, preservation of other fields, deletion, final 404, and absence
+from the list. Browser edit/cancel-delete/confirm-delete, focus, and pending-state
+walkthroughs remain pending. Automated render tests cover edit defaults and the
+confirmation warning/disabled controls; they do not simulate clicks.
 See the frontend README for local setup and verification commands.
 
 | Step | Work | Acceptance result |

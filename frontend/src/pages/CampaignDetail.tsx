@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { campaignQuery } from '../queries'
 import { ErrorNotice } from '../components/Feedback'
 import { messages } from '../messages'
+import DeleteCampaign from '../components/DeleteCampaign'
 
 const languages: Record<string, string> = { arabic: messages.arabic, english: messages.english, both: messages.both }
 
@@ -21,7 +22,7 @@ export default function CampaignDetail() {
       {query.isPending && <p role="status">بنحمّل بيانات الحملة…</p>}
       {query.isError && <ErrorNotice error={query.error} retry={() => { void query.refetch() }} />}
       {query.isSuccess && <>
-        {state?.created && <p className="notice success-notice" role="status">تم حفظ الحملة بنجاح.</p>}
+        {(state?.created || state?.updated) && <p className="notice success-notice" role="status">{state?.updated ? 'تم حفظ التعديلات بنجاح.' : 'تم حفظ الحملة بنجاح.'}</p>}
         <div className="page-heading"><p className="eyebrow">تفاصيل الحملة · رقم <bdi>{query.data.id}</bdi></p><h1 dir="auto">{query.data.title}</h1></div>
         <article className="panel campaign-detail">
           <h2>هدف الحملة</h2>
@@ -33,6 +34,10 @@ export default function CampaignDetail() {
             <div><dt>تاريخ الإنشاء</dt><dd><time dateTime={query.data.created_at}>{new Intl.DateTimeFormat('ar-EG', { dateStyle: 'medium' }).format(new Date(query.data.created_at))}</time></dd></div>
           </dl>
         </article>
+        <div className="campaign-controls">
+          <Link className="button" to={`/campaigns/${id}/edit`}>تعديل الحملة</Link>
+          <DeleteCampaign key={id} campaign={query.data} />
+        </div>
       </>}
     </section>
   )

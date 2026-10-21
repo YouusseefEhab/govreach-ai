@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
-import { ApiError, apiRequest, checkBackend, createCampaign, getCampaign, listCampaigns } from '../src/services/api.ts'
+import { ApiError, apiRequest, checkBackend, createCampaign, deleteCampaign, getCampaign, listCampaigns, updateCampaign } from '../src/services/api.ts'
 
 const originalFetch = globalThis.fetch
 afterEach(() => { globalThis.fetch = originalFetch })
@@ -45,6 +45,31 @@ test('campaign details can be fetched independently after a refresh', async () =
     return Response.json({ id: 27, title: 'Test', objective: 'Objective', domain: 'traffic_safety', language: 'english', status: 'draft', created_at: '2026-10-21T12:00:00Z' })
   }
   assert.equal((await getCampaign(27)).language, 'english')
+})
+
+test('campaign edits send a partial PATCH and retain unrelated response fields', async () => {
+  globalThis.fetch = async (url, options) => {
+    assert.equal(String(url), 'http://localhost:8000/api/v1/campaigns/27')
+    assert.equal(options?.method, 'PATCH')
+    assert.deepEqual(JSON.parse(options?.body as string), { title: 'Updated title' })
+    return Response.json({ id: 27, title: 'Updated title', objective: 'Original objective', domain: 'custom_domain', language: 'both', status: 'draft', created_at: '2026-10-21T12:00:00Z' })
+  }
+  const updated = await updateCampaign(27, { title: 'Updated title' })
+  assert.equal(updated.domain, 'custom_domain')
+  assert.equal(updated.objective, 'Original objective')
+})
+
+test('campaign deletion handles 204 and does not retry a failed delete', async () => {
+  globalThis.fetch = async (url, options) => {
+    assert.equal(String(url), 'http://localhost:8000/api/v1/campaigns/27')
+    assert.equal(options?.method, 'DELETE')
+    return new Response(null, { status: 204 })
+  }
+  assert.equal(await deleteCampaign(27), undefined)
+  let calls = 0
+  globalThis.fetch = async () => { calls++; return Response.json({}, { status: 503 }) }
+  await assert.rejects(deleteCampaign(27), (error: unknown) => error instanceof ApiError && error.status === 503)
+  assert.equal(calls, 1)
 })
 
 test('missing records and malformed successful payloads are controlled errors', async () => {

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { campaignsQuery } from '../queries'
 import { messages } from '../messages'
 import { ErrorNotice } from '../components/Feedback'
@@ -11,6 +11,7 @@ const languageLabels: Record<string, string> = {
 const dateFormatter = new Intl.DateTimeFormat('ar-EG', { dateStyle: 'medium' })
 
 export default function Campaigns() {
+  const { state } = useLocation()
   const [params, setParams] = useSearchParams()
   const rawPage = params.get('page') ?? '1'
   const parsedPage = /^\d+$/.test(rawPage) ? Number(rawPage) : 1
@@ -25,6 +26,7 @@ export default function Campaigns() {
 
   return (
     <section aria-labelledby="campaign-heading">
+      {state?.deleted && <p className="notice success-notice" role="status">تم حذف الحملة ومحتواها.</p>}
       <div className="page-heading">
         <p className="eyebrow">رسائلك في مكان واحد</p>
         <h1 id="campaign-heading" tabIndex={-1}>{messages.campaigns}</h1>

@@ -8,10 +8,15 @@ import { createServer } from 'vite'
 
 let server: Awaited<ReturnType<typeof createServer>>
 let App: () => ReturnType<typeof createElement>
+let renderConfirmation: (busy: boolean) => string
 
 before(async () => {
   server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   App = (await server.ssrLoadModule('/src/App.tsx')).default
+  const { DeleteConfirmation } = await server.ssrLoadModule('/src/components/DeleteCampaign.tsx')
+  renderConfirmation = (busy) => renderToStaticMarkup(createElement(DeleteConfirmation, {
+    title: '<script>unsafe</script>', busy, confirm: () => {}, cancel: () => {},
+  }))
 })
 after(async () => { await server?.close() })
 
@@ -83,4 +88,28 @@ test('saved campaign detail displays its original brief and selected language', 
 
 test('invalid campaign IDs offer recovery rather than starting a query', () => {
   assert.ok(render('/campaigns/not-an-id').includes('رقم الحملة غير صحيح'))
+})
+
+test('edit route prefills the saved campaign and explains history preservation', () => {
+  const html = render('/campaigns/27/edit', undefined, {
+    id: 27, title: 'Existing title', objective: 'Existing objective', domain: 'custom_domain',
+    language: 'english', status: 'draft', created_at: '2026-10-21T12:00:00Z',
+  })
+  assert.ok(html.includes('value="Existing title"'))
+  assert.ok(html.includes('Existing objective'))
+  assert.ok(html.includes('value="english" selected=""'))
+  assert.ok(html.includes('المسودات القديمة'))
+  assert.ok(html.includes('custom_domain'))
+  assert.ok(html.includes('احفظ التعديلات'))
+})
+
+test('delete confirmation names the cascade, escapes titles, and blocks actions while pending', () => {
+  const idle = renderConfirmation(false)
+  assert.ok(idle.includes('كل المحتوى المتولّد وسجل التوليد'))
+  assert.ok(idle.includes('إلغاء الحذف'))
+  assert.ok(idle.includes('أيوه، احذف الحملة ومحتواها'))
+  assert.ok(!idle.includes('<script>'))
+  const pending = renderConfirmation(true)
+  assert.equal((pending.match(/disabled=""/g) ?? []).length, 2)
+  assert.ok(pending.includes('بنحذف الحملة…'))
 })
