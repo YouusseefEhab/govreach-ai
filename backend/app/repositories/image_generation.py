@@ -29,9 +29,28 @@ def claim_reserved(db: Session, image_id: int) -> bool:
     return result.rowcount == 1
 
 
-def mark_outcome_unknown(db: Session, image_id: int) -> bool:
+def mark_outcome_unknown(db: Session, image_id: int, code: str = "interrupted_request") -> bool:
     result = db.execute(update(ImageGeneration).where(
         ImageGeneration.id == image_id, ImageGeneration.request_state == "generating",
-    ).values(request_state="outcome_unknown", failure_code="interrupted_request", updated_at=datetime.now(timezone.utc)))
+    ).values(request_state="outcome_unknown", failure_code=code, updated_at=datetime.now(timezone.utc)))
+    db.commit()
+    return result.rowcount == 1
+
+
+def finish_failed(db: Session, image_id: int, code: str) -> bool:
+    result = db.execute(update(ImageGeneration).where(
+        ImageGeneration.id == image_id, ImageGeneration.request_state == "generating",
+    ).values(request_state="failed", failure_code=code, updated_at=datetime.now(timezone.utc)))
+    db.commit()
+    return result.rowcount == 1
+
+
+def finish_ready(db: Session, image_id: int, *, key: str, mime_type: str,
+                 width: int, height: int, byte_count: int, checksum: str) -> bool:
+    result = db.execute(update(ImageGeneration).where(
+        ImageGeneration.id == image_id, ImageGeneration.request_state == "generating",
+    ).values(request_state="ready", review_status="draft", failure_code=None,
+             storage_key=key, mime_type=mime_type, width=width, height=height,
+             byte_count=byte_count, checksum=checksum, updated_at=datetime.now(timezone.utc)))
     db.commit()
     return result.rowcount == 1

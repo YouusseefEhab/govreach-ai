@@ -27,9 +27,10 @@ approval/rejection, an English interface switch, and exact-text copy controls.
 The user confirmed the core workflow and mobile checks; keyboard testing is
 deferred. See the [Phase 4 verification record](frontend/PHASE_4_VERIFICATION.md).
 The [Phase 5 image foundation](docs/PHASE_5.md) adds separate request metadata,
-source snapshots, request identity and local byte storage. Image generation APIs,
-decoded-image validation and image UI are not available yet; no paid image calls
-are enabled. Video, authentication, publishing and cloud deployment remain later.
+source snapshots, request identity and local byte storage. Decoded-image validation
+and a fake-only pipeline are available, with a rollback-only diagnostic. Image APIs,
+real image providers and image UI are not available yet; no paid image calls are
+enabled. Video, authentication, publishing and cloud deployment remain later.
 
 ## Technology and architecture
 
@@ -127,6 +128,7 @@ prove server cancellation; inspect saved history before submitting again.
 # Optional PostgreSQL checks using temporary records and a fake provider
 .venv/Scripts/python.exe -m alembic check
 .venv/Scripts/python.exe -m scripts.check_generation_api
+.venv/Scripts/python.exe -m scripts.check_image_pipeline
 
 # From frontend
 npm run lint
@@ -134,7 +136,8 @@ npm test
 npm run build
 ```
 
-The backend has 191 passing tests. Live diagnostics are opt-in: add `--live` to
+The backend has 219 passing tests. The image diagnostic is fake-only. Live text
+diagnostics are opt-in: add `--live` to
 `scripts.check_generation_api` for one provider request or run
 `scripts.evaluate_text_generation --live` for three. Quotas/charges depend on API
 project billing. Diagnostic rows are rolled back; captured IDs are not persistent.

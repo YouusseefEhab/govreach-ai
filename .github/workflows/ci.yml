@@ -59,6 +59,8 @@ jobs:
           python -m alembic check
       - name: Verify API with a fake provider
         run: python -m scripts.check_generation_api
+      - name: Verify image pipeline with fake output
+        run: python -m scripts.check_image_pipeline
 
   frontend:
     name: Frontend tests, lint and production build

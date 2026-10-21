@@ -2,6 +2,48 @@
 
 Prepared 2026-10-21. **Foundation approved and implemented; paid usage remains unapproved.**
 
+## Current progress — validation and fake pipeline
+
+Implemented the second increment on 2026-10-21:
+
+- Pinned Pillow 13.0.0 in runtime requirements/constraints. Verification opens,
+  checks and fully decodes PNG/JPEG data, checks claimed MIME against detected
+  format, rejects corrupt/truncated/non-square/animated output, and enforces byte,
+  edge and pixel limits before full pixel loading. Original bytes are retained.
+  See [Pillow image verification](https://pillow.readthedocs.io/en/stable/reference/Image.html).
+- Added an image-provider protocol, safe provider error boundary and deterministic
+  fake provider. Its blue 32×32 PNG is a test placeholder, not AI campaign artwork.
+- A fake-only service reserves/claims the request, releases its database transaction
+  before the provider call, validates output and rechecks/locks the source before
+  saving verified file metadata as a ready **draft**. No image is auto-approved.
+- Same-key replays return saved state without invoking the provider again. Policy
+  refusal/invalid output/storage failure are distinguished from ambiguous timeout/
+  transport outcomes. Unexpected provider error bodies are not exposed.
+- Database/storage are not atomic: proven orphan files are cleaned up after failed
+  persistence. A lost commit acknowledgement is checked against saved metadata;
+  potentially referenced bytes are retained when database state cannot be read.
+  Cleanup failures are logged for later reconciliation. The reconciliation command
+  and cascade/file integration remain prerequisites for public endpoints.
+- Added `scripts.check_image_pipeline` and a fake-only PostgreSQL CI check.
+  The diagnostic creates temporary files and rolls back its temporary rows.
+
+Verification: 219 backend tests pass; dependency check passes; PostgreSQL fake
+pipeline diagnostic passes (verified image, file reload, idempotent replay and stale
+source detection). Alembic reports no schema drift; no new migration was needed.
+Existing campaigns/text are untouched. No paid generation, real image adapter,
+image endpoints or image frontend are enabled. Keyboard testing remains deferred.
+
+Run the safe diagnostic from `backend`:
+
+```powershell
+.venv/Scripts/python.exe -m pip install -r requirements-dev.txt -c constraints.txt
+.venv/Scripts/python.exe -m scripts.check_image_pipeline
+```
+
+It has no live mode and creates no lasting demo image. The next increment is the
+image API plus cleanup/recovery integration; real-provider access and paid pilot
+still require an agreed budget.
+
 ## Progress — first implementation increment
 
 The user approved the proposed text-free square-image foundation, separate image
@@ -263,8 +305,8 @@ does not regress text functionality. Failed generations do not create ready imag
 
 1. Media foundation and the proposed initial architecture are approved. Keep the
    Graduation 1 scope/deadline tradeoff visible rather than claiming university approval.
-2. Next: implement decoded-image validation and a fake provider pipeline, then API
-   routes and cleanup/recovery integration, followed by the real adapter and UI.
+2. Decoded-image validation and a fake provider pipeline are implemented. Next:
+   API routes and cleanup/recovery integration, then the real adapter and UI.
 3. Verify image API access and agree a live-call budget before paid testing.
 4. Text-free square images are approved as the initial format; overlays remain later.
 
