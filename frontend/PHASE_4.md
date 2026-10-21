@@ -61,11 +61,19 @@ Campaign editing and confirmed deletion are now implemented. Create/edit share a
 form; edit prefills the saved brief and PATCHes only changed fields. Domain and
 generated history stay unchanged. Deletion explains the cascade, requires a second
 explicit action, disables confirmation controls while pending, and refreshes the
-list after success. Generation, content history/review, and an English UI switch
-remain pending. Existing backend contracts and database schema are unchanged.
+list after success. Step 3 now adds explicit audience/tone generation, a 120-second
+browser wait, no mutation retries, pending guards within the app session, and
+saved-history checks before resubmitting after errors. Unsupported campaigns show
+an explanation instead of allowing generation. The initial Step 4 display adds
+paginated five-field cards with independent RTL/LTR, review status, sources, and
+generation metadata. Cards are individual content records rather than assumed
+complete bilingual groups. Content editing/review, copying, more history detail,
+and an English UI switch remain pending. Existing backend contracts and database
+schema are unchanged. Full reloads/multiple tabs have no shared pending guard;
+backend idempotency and cancellation remain outside the current API.
 
-Verification: production build and lint passed; 23 frontend tests and 165 backend
-tests passed. API client tests
+Verification: production build and lint passed; 31 frontend tests passed. The 165
+backend tests passed during the preceding campaign-management increment. API client tests
 mock fetch and cover pagination, malformed data, validation, HTTP failures,
 cancellation, no automatic replay, and empty 204 responses. Server-rendered route
 tests cover Arabic navigation, mixed-language titles, pagination controls, empty
@@ -83,6 +91,15 @@ language editing, preservation of other fields, deletion, final 404, and absence
 from the list. Browser edit/cancel-delete/confirm-delete, focus, and pending-state
 walkthroughs remain pending. Automated render tests cover edit defaults and the
 confirmation warning/disabled controls; they do not simulate clicks.
+Generation checks mock audience validation, 201 response decoding, 502/503/504,
+network loss, browser timeout, no automatic POST replay, and GET-only paginated
+history. Render checks cover pending/recovery-disabled forms and safe directional
+content/source display. Existing histories were fetched through the real frontend
+client (read-only). The PostgreSQL fake-provider diagnostic passed generation 201,
+retrieval/edit/review 200, and cascade deletion 204/404; all diagnostic writes rolled
+back. No live Gemini call was made. Browser generation clicks, navigation during
+pending, and visual layouts remain unverified by automation because its runtime
+could not initialize.
 See the frontend README for local setup and verification commands.
 
 | Step | Work | Acceptance result |

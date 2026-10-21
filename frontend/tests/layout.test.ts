@@ -9,6 +9,8 @@ import { createServer } from 'vite'
 let server: Awaited<ReturnType<typeof createServer>>
 let App: () => ReturnType<typeof createElement>
 let renderConfirmation: (busy: boolean) => string
+let renderGeneration: (busy: boolean, disabled?: boolean) => string
+let renderContent: () => string
 
 before(async () => {
   server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
@@ -17,6 +19,17 @@ before(async () => {
   renderConfirmation = (busy) => renderToStaticMarkup(createElement(DeleteConfirmation, {
     title: '<script>unsafe</script>', busy, confirm: () => {}, cancel: () => {},
   }))
+  const { GenerationForm } = await server.ssrLoadModule('/src/components/GenerationWorkspace.tsx')
+  renderGeneration = (busy, disabled = false) => renderToStaticMarkup(createElement(GenerationForm, {
+    busy, disabled, submit: async () => { throw new Error('Rendering must never submit') },
+  }))
+  const { default: ContentCard } = await server.ssrLoadModule('/src/components/ContentCard.tsx')
+  renderContent = () => renderToStaticMarkup(createElement(ContentCard, { item: {
+    id: 15, campaign_id: 27, generation_id: 'f23507de-84ac-46a6-9f07-a44918edf4b2', language: 'english',
+    review_status: 'draft', provider: 'fake', model: 'test', prompt_version: 'test', created_at: '2026-10-21T12:00:00Z',
+    source_references: [{ title: '<script>unsafe</script>', url: 'javascript:alert(1)' }],
+    content: { headline: '<script>text</script>', slogan: 'Slogan', awareness_message: 'Message', social_caption: 'Caption', call_to_action: 'Action' },
+  } }))
 })
 after(async () => { await server?.close() })
 
@@ -112,4 +125,22 @@ test('delete confirmation names the cascade, escapes titles, and blocks actions 
   const pending = renderConfirmation(true)
   assert.equal((pending.match(/disabled=""/g) ?? []).length, 2)
   assert.ok(pending.includes('بنحذف الحملة…'))
+})
+
+test('generation render never submits and pending/recovery states disable the form', () => {
+  assert.ok(renderGeneration(false).includes('ولّد مسودة جديدة'))
+  const pending = renderGeneration(true)
+  assert.ok(pending.includes('<fieldset disabled="">'))
+  assert.ok(pending.includes('بنجهّز المسودة'))
+  assert.ok(pending.includes('الخروج من الصفحة مش بيلغي التوليد'))
+  assert.ok(renderGeneration(false, true).includes('<fieldset disabled="">'))
+})
+
+test('content uses its own direction and plain text; unsafe source links are not rendered', () => {
+  const html = renderContent()
+  assert.ok(html.includes('lang="en" dir="ltr"'))
+  assert.ok(html.includes('مسودة للمراجعة'))
+  assert.ok(html.includes('مش تدقيق تلقائي'))
+  assert.ok(!html.includes('<script>'))
+  assert.ok(!html.includes('href="javascript:'))
 })

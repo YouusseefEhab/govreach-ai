@@ -21,7 +21,8 @@ in draft until reviewed; approval does not publish it or imply government endors
 The backend and Phase 3 pilot evaluation are complete. The frontend currently
 contains an Arabic RTL React layout, backend health check, paginated campaign list,
 campaign creation/editing, saved campaign details, and confirmed deletion.
-Generation and content review through the UI are being built in Phase 4.
+Text generation and saved draft/source display are available in the UI.
+Content editing and review through the UI are the next Phase 4 increment.
 Images, video, authentication, publishing, and cloud deployment
 are future milestones.
 

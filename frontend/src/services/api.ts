@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Campaign, CampaignCreate, CampaignUpdate } from './types.ts'
+import type { Campaign, CampaignCreate, CampaignUpdate, GenerationRequest, GenerationResponse, StoredContent } from './types.ts'
 
 const configuredBase = import.meta.env?.VITE_API_BASE_URL?.trim()
 export const API_BASE_URL = (configuredBase || 'http://localhost:8000').replace(/\/+$/, '')
@@ -123,4 +123,47 @@ export function updateCampaign(id: number, data: CampaignUpdate): Promise<Campai
 
 export function deleteCampaign(id: number): Promise<void> {
   return apiRequest(`/api/v1/campaigns/${id}`, { method: 'DELETE' })
+}
+
+const storedContentSchema = z.object({
+  id: z.number().int().positive(),
+  campaign_id: z.number().int().positive(),
+  generation_id: z.uuid(),
+  language: z.enum(['arabic', 'english']),
+  content_type: z.literal('text_package'),
+  review_status: z.enum(['draft', 'approved', 'rejected']),
+  content: z.object({
+    headline: z.string(), slogan: z.string(), awareness_message: z.string(),
+    social_caption: z.string(), call_to_action: z.string(),
+  }),
+  provider: z.string(), model: z.string(), prompt_version: z.string(),
+  input_snapshot: z.record(z.string(), z.unknown()),
+  source_references: z.array(z.record(z.string(), z.unknown())),
+  created_at: z.iso.datetime({ offset: true }),
+})
+
+export function listContents(id: number, skip: number, limit: number, signal?: AbortSignal): Promise<StoredContent[]> {
+  const params = new URLSearchParams({ skip: String(skip), limit: String(limit) })
+  return apiRequest(`/api/v1/campaigns/${id}/contents?${params}`, { signal }, (body) =>
+    z.array(storedContentSchema).refine((rows) => rows.every((row) => row.campaign_id === id)).parse(body))
+}
+
+export async function generateText(id: number, data: GenerationRequest): Promise<GenerationResponse> {
+  // Longer than the backend's 90-second provider limit. Navigation does not
+  // cancel this request: the server may still finish and save its output.
+  const signal = AbortSignal.timeout(120_000)
+  try {
+    return await apiRequest(`/api/v1/campaigns/${id}/generate-text`, {
+      method: 'POST', body: JSON.stringify(data), signal,
+    }, (body) => z.object({
+      campaign_id: z.literal(id), contents: z.array(storedContentSchema).min(1).max(2),
+    }).refine(({ contents }) =>
+      contents.every((row) => row.campaign_id === id) &&
+      new Set(contents.map((row) => row.language)).size === contents.length &&
+      new Set(contents.map((row) => row.generation_id)).size === 1,
+    ).parse(body))
+  } catch (error) {
+    if (signal.aborted) throw new ApiError('مدة انتظار المتصفح انتهت. ممكن السيرفر يكون حفظ المحتوى؛ راجع المحتوى المحفوظ قبل إعادة الطلب.')
+    throw error
+  }
 }

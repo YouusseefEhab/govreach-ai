@@ -99,6 +99,21 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .delete-campaign { flex: 1; min-width: 240px; }
 .button.danger { background: #a13720; color: white; }
 .button.danger:hover:not(:disabled) { background: #7e2918; }
+.generation-workspace { margin-top: 32px; }
+.generation-workspace .form-note { margin-top: 20px; }
+.generation-workspace form { margin-top: 24px; }
+.content-history { margin-top: 36px; }
+.history-heading, .content-card-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.history-heading h2, .content-card-heading h3 { margin: 0; }
+.content-history > p { color: #617187; font-size: 13px; }
+.content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; }
+.content-card { min-width: 0; }
+.text-package { margin-bottom: 24px; }
+.text-package dt, .generation-metadata dt { font-size: 12px; color: #617187; margin-top: 20px; }
+.text-package dd { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; }
+.content-sources { border-top: 1px solid #e0e6ef; padding-top: 16px; font-size: 13px; }
+summary { cursor: pointer; }
+.generation-metadata dd { margin: 4px 0; overflow-wrap: anywhere; }
 .skip-link { position: fixed; top: -100px; inset-inline-start: 20px; background: #182a3c; color: white; padding: 12px; z-index: 10; }
 .skip-link:focus { top: 12px; }
 @media (min-width: 1500px) { .welcome-panel { padding: 64px; } }

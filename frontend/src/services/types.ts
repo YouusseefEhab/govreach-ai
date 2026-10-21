@@ -42,3 +42,13 @@ export interface StoredContent {
   source_references: Record<string, unknown>[]
   created_at: string
 }
+
+export interface GenerationRequest {
+  audience: string
+  tone: 'informative' | 'encouraging' | 'formal'
+}
+
+export interface GenerationResponse {
+  campaign_id: number
+  contents: StoredContent[]
+}

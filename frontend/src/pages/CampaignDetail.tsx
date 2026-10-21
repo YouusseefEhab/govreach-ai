@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
+import { useIsMutating, useQuery } from '@tanstack/react-query'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { campaignQuery } from '../queries'
 import { ErrorNotice } from '../components/Feedback'
 import { messages } from '../messages'
 import DeleteCampaign from '../components/DeleteCampaign'
+import GenerationWorkspace from '../components/GenerationWorkspace'
 
 const languages: Record<string, string> = { arabic: messages.arabic, english: messages.english, both: messages.both }
 
@@ -13,6 +14,7 @@ export default function CampaignDetail() {
   const validId = Number.isSafeInteger(id) && id > 0
   const query = useQuery(campaignQuery(id))
   const { state } = useLocation()
+  const generating = useIsMutating({ mutationKey: ['generate-text', id] }) > 0
 
   if (!validId) return <section className="panel"><h1>رقم الحملة غير صحيح</h1><Link className="text-link" to="/campaigns">ارجع للحملات</Link></section>
 
@@ -34,10 +36,11 @@ export default function CampaignDetail() {
             <div><dt>تاريخ الإنشاء</dt><dd><time dateTime={query.data.created_at}>{new Intl.DateTimeFormat('ar-EG', { dateStyle: 'medium' }).format(new Date(query.data.created_at))}</time></dd></div>
           </dl>
         </article>
-        <div className="campaign-controls">
+        {!generating && <div className="campaign-controls">
           <Link className="button" to={`/campaigns/${id}/edit`}>تعديل الحملة</Link>
           <DeleteCampaign key={id} campaign={query.data} />
-        </div>
+        </div>}
+        <GenerationWorkspace key={id} campaign={query.data} />
       </>}
     </section>
   )

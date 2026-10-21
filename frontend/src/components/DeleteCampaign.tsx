@@ -35,6 +35,8 @@ export default function DeleteCampaign({ campaign }: { campaign: Campaign }) {
     onSuccess: async () => {
       await client.cancelQueries({ queryKey: campaignQuery(campaign.id).queryKey })
       client.removeQueries({ queryKey: campaignQuery(campaign.id).queryKey })
+      await client.cancelQueries({ queryKey: ['campaign-contents', campaign.id] })
+      client.removeQueries({ queryKey: ['campaign-contents', campaign.id] })
       await client.invalidateQueries({ queryKey: ['campaigns'] })
     },
   })

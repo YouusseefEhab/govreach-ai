@@ -1,5 +1,5 @@
 import { queryOptions, QueryClient } from '@tanstack/react-query'
-import { checkBackend, getCampaign, listCampaigns } from './services/api'
+import { checkBackend, getCampaign, listCampaigns, listContents } from './services/api'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,4 +22,9 @@ export const campaignQuery = (id: number) => queryOptions({
   queryKey: ['campaign', id],
   queryFn: ({ signal }) => getCampaign(id, signal),
   enabled: Number.isSafeInteger(id) && id > 0,
+})
+
+export const contentsQuery = (id: number, skip = 0, limit = 20) => queryOptions({
+  queryKey: ['campaign-contents', id, { skip, limit }],
+  queryFn: ({ signal }) => listContents(id, skip, limit, signal),
 })

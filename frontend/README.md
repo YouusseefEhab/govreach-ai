@@ -3,7 +3,8 @@
 React + TypeScript + Vite application for the graduation project. The current
 implementation contains an Arabic RTL layout, welcome page, backend health
 check, paginated campaign list, shared campaign create/edit form, saved campaign
-details, and confirmed deletion. Generation, history, source, and review screens are planned in
+details, confirmed deletion, text generation, and paginated saved text/source cards.
+Content editing/review and further interface work are planned in
 [Phase 4](PHASE_4.md).
 
 ## Development
@@ -37,6 +38,27 @@ an exactly full final page can lead to an empty next page because there is no
 total count. The health indicator checks process responsiveness, not the database.
 The English interface switch is a later increment; campaign language is independent.
 
+## Text generation
+
+Open a traffic-safety campaign, enter its audience, select a tone, and explicitly
+choose **ولّد مسودة جديدة**. Language comes from the campaign. The request waits
+up to 120 seconds, longer than the backend's 90-second provider limit. No generation
+is triggered by navigation, rendering, refresh, or history reads; mutations are not
+automatically retried. The pending request blocks another submission for that
+campaign within this app session, including when navigating away and back.
+
+Errors retain the audience/tone and require **راجع المحتوى المحفوظ** before another
+submission. Successful history retrieval unlocks the form; inspect the displayed
+packages first. A connection failure or browser timeout does not prove generation
+was cancelled on the server. Reloading the entire app or opening another tab loses
+the in-memory pending guard; there is no backend idempotency/cancellation endpoint.
+
+Saved packages display the five text fields, their own RTL/LTR direction, review
+status, sources, and generation details. Each page contains content records, not
+complete generation groups; a bilingual pair may span pages. Group UUIDs identify
+related records. Source links only accept HTTPS, and text is rendered as plain
+text. References were supplied to generation and do not certify the output.
+
 ## Verification
 
 ```powershell
@@ -61,7 +83,15 @@ confirmation and cancel (campaign must remain), then confirm deletion (it must
 disappear). Never use an important campaign for the deletion walkthrough.
 Live API verification used the real frontend client to create/read/partially edit/
 delete only disposable campaigns, checking preserved fields and a final 404.
-No Gemini calls were made. Automated checks: 23 frontend tests and 165 backend
-tests passed, along with frontend lint/build. Focus restoration and click/pending
-behavior still need browser interaction checks.
+No Gemini calls were made. Automated checks: 31 frontend tests, frontend lint/build,
+and the PostgreSQL fake-provider API diagnostic passed. The existing backend suite
+also passed its 165 tests in the preceding campaign-management increment.
+Live GET checks retrieved existing histories through the frontend client.
+Focus restoration and click/pending behavior still need browser interaction checks.
+
+Generation walkthrough (a real provider request may consume quota/credits): open a
+test traffic-safety campaign, set audience/tone, and generate once. Wait without
+resubmitting. Confirm saved packages and sources, reload, and verify the same IDs
+remain in history. On an error, check saved content before deciding to submit again.
+Routine automated tests use mocked fetch or a fake provider, not Gemini.
 See the [project README](../README.md) for backend setup and scope.
