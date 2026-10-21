@@ -27,9 +27,9 @@ subject to user confirmation.
 Build a responsive text-campaign workspace, including bilingual interface labels,
 independent content-language direction, source inspection, and human review.
 Interface language is separate from campaign language: changing the UI language
-must not change which language the campaign generates. Proposed default is an
-English UI with an Arabic toggle; default interface language can be confirmed
-before the layout is implemented. Generated Arabic stays Egyptian Arabic.
+must not change which language the campaign generates. The user selected Arabic
+as the default interface on 2026-10-21; an English toggle will follow in a later
+increment. Generated Arabic stays Egyptian Arabic.
 
 Images, video generation, public publishing, authentication/roles, reviewer audit
 trails, background jobs, and cloud rollout follow as separate increments. Do not
@@ -46,6 +46,29 @@ Keep campaign status distinct from content review status. Approving a package
 does not mark its campaign or the other language package approved.
 
 ## Implementation sequence
+
+### Progress — 2026-10-21
+
+Step 1 implemented: Arabic-default RTL layout (user preference), navigation,
+TanStack Query provider, shared configurable API client, campaign/content types,
+safe HTTP/network/validation errors, response-shape validation, and backend health.
+The first part of Step 2 adds a read-only campaign list with URL pagination,
+loading/error/empty states, and isolated Arabic/English titles. Creation, campaign
+detail/edit/delete, generation, content history/review, and an English UI switch
+remain pending. Existing backend contracts and database schema are unchanged.
+
+Verification: production build and lint passed; 11 tests passed. API client tests
+mock fetch and cover pagination, malformed data, validation, HTTP failures,
+cancellation, no automatic replay, and empty 204 responses. Server-rendered route
+tests cover Arabic navigation, mixed-language titles, pagination controls, empty
+lists, and missing pages. They do not replace browser interaction/visual checks.
+The browser-control runtime failed to initialize, so visual, keyboard interaction,
+and mobile viewport checks remain pending.
+Local HTTP checks returned 200 for `/` and `/campaigns`; FastAPI `/health` and
+the campaign-list endpoint returned 200 with the correct localhost:5173 CORS
+origin. The list read two existing campaigns; no records were changed and no
+Gemini requests were made.
+See the frontend README for local setup and verification commands.
 
 | Step | Work | Acceptance result |
 | --- | --- | --- |

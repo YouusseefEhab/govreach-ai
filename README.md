@@ -19,8 +19,9 @@ in draft until reviewed; approval does not publish it or imply government endors
 - Edited packages reset to draft for another review.
 
 The backend and Phase 3 pilot evaluation are complete. The frontend currently
-contains a React welcome screen and backend health check; the full campaign UI is
-planned in Phase 4. Images, video, authentication, publishing, and cloud deployment
+contains an Arabic RTL React layout, backend health check, and read-only paginated
+campaign list. The remaining campaign workflow is being built in Phase 4.
+Images, video, authentication, publishing, and cloud deployment
 are future milestones.
 
 ## Technology and architecture
@@ -122,6 +123,7 @@ prove server cancellation; inspect saved history before submitting again.
 
 # From frontend
 npm run lint
+npm test
 npm run build
 ```
 

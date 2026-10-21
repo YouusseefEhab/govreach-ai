@@ -61,7 +61,7 @@ jobs:
         run: python -m scripts.check_generation_api
 
   frontend:
-    name: Frontend lint and production build
+    name: Frontend tests, lint and production build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -78,4 +78,5 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npm test
       - run: npm run build
