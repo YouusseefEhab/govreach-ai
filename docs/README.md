@@ -12,7 +12,8 @@
 | [Review findings](../backend/evaluation/review_20261013.json) | Proposed corrections |
 | [Phase 4](../frontend/PHASE_4.md) | Frontend implementation plan |
 | [Phase 4 verification](../frontend/PHASE_4_VERIFICATION.md) | User-confirmed workflow/mobile checks; keyboard pending |
-| [Phase 5](PHASE_5.md) | Image pipeline, Cloudflare adapter, API and cleanup; image UI/pilot pending |
+| [Phase 5](PHASE_5.md) | Image pipeline, Cloudflare adapter, API, cleanup and frontend; live visual pilot pending |
+| [Image interface and testing](../frontend/PHASE_5_IMAGES.md) | Approved-source selection, image generation/recovery, preview/download and independent review |
 | [Cloudflare setup](CLOUDFLARE_SETUP.md) | Configure Workers Free credentials privately; explicit one-request diagnostic |
 | [Image API testing](IMAGE_API_TESTING.md) | Swagger generation, replay, preview/download, review and offline maintenance |
 

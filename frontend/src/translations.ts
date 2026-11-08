@@ -1,5 +1,8 @@
 // UI messages only. Campaign and generated text never pass through this catalogue.
+import { imageEnglish } from './i18n/image-translations.ts'
+
 export const english: Record<string, string> = {
+  ...imageEnglish,
   'الصفحة مش موجودة': 'Page not found',
   'ممكن يكون الرابط اتغيّر. ارجع للحملات عشان تكمّل.': 'The link may have changed. Return to campaigns to continue.',
   'ارجع للحملات': 'Back to campaigns',

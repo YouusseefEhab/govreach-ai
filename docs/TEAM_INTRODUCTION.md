@@ -28,13 +28,16 @@ anything.
 - **Image backend:** Cloudflare image generation is connected. The API supports
   images based on approved text, saved history, preview, download and separate
   review. Repeat requests with the same request key do not generate again.
+- **Image website workflow:** choose approved text, describe a scene, generate,
+  recover a saved request, view/download images and review them independently.
+  Browser tests used fake images; real visual-quality review is still needed.
 - **Checks:** the latest recorded backend run passed 260 automated tests, plus
   a PostgreSQL image API check. Image visual quality still needs a human pilot.
 
 ## What are we doing next?
 
-1. Test the image API manually and inspect real image quality.
-2. Add image generation, preview, download and review to the website.
+1. Test the image website workflow with a real image and inspect its quality.
+2. Review usability and record the team's feedback.
 3. Evaluate sample campaigns for Arabic quality, English meaning, factual
    accuracy and safe, relevant images. Finish keyboard testing.
 4. Prepare the demonstration and update the project documentation.

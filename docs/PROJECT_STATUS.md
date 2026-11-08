@@ -4,8 +4,9 @@ Updated 8 November 2026.
 
 ## Where we stopped
 
-We are in **Phase 5 image generation**. The image backend is implemented; the
-image interface and human visual-quality pilot are still pending.
+We are in **Phase 5 image generation**. The backend and bilingual image interface
+are implemented. The human visual-quality pilot and full mobile/keyboard sign-off
+are still pending.
 
 | Area | Current position |
 | --- | --- |
@@ -15,6 +16,7 @@ image interface and human visual-quality pilot are still pending.
 | Frontend | Arabic-default bilingual React interface; campaign and text workflows implemented |
 | New frontend design | User's logo, navy/gold branding, top navigation and homepage integrated from GitHub main |
 | Images | Cloudflare adapter, generation/history/file/review APIs, request replay protection and local file cleanup implemented |
+| Image interface | Approved-source selection, brief/style, explicit generation, request recovery, paginated history, preview/download and independent review implemented |
 | Image verification | User reported a successful live connection diagnostic; visual quality still needs human review |
 | Video and social publishing | Agreed future direction; not implemented |
 
@@ -37,16 +39,17 @@ applied across the shell and workspace. The user's graduation plan is unchanged.
 
 ## What we will do now
 
-1. Complete a manual image API walkthrough using reviewed source text. Inspect
+1. Complete a real-image walkthrough using reviewed source text in the interface. Inspect
    the resulting image for correct safety equipment, anatomy, Egyptian context,
    unintended text/logos and message relevance. Connection success is not a visual
    quality pass. See [image API testing](IMAGE_API_TESTING.md).
-2. Add the image workflow to the existing frontend: approved text selection,
-   visual brief, explicit generation, saved history, preview/download, stale-source
-   warning and independent approval/rejection. Keep the new design.
+2. Review the image workflow's wording and usability with the team. The interface
+   implementation is complete and its end-to-end browser check used isolated fake
+   images, so that check is not evidence of actual image quality.
 3. Test the integrated workflow, mobile layout and keyboard use. Earlier mobile
    checks predate the redesign; keyboard testing remains pending.
 4. Run a small human-reviewed image pilot and record corrections and limitations.
+   See [image interface testing](../frontend/PHASE_5_IMAGES.md) for the walkthrough.
 
 ## How we can strengthen the project
 
@@ -94,7 +97,8 @@ deployment or publishing service has been activated by this roadmap update.
 
 Backend regression tests were rerun: all 260 passed. The rollback-only PostgreSQL
 image API diagnostic passed in the earlier backend increment. Frontend redesign
-integration passed the existing 46 tests, source lint and production build; browser
+integration initially passed 46 tests; the image frontend now has 67 passing tests,
+source lint and a passing production build. Browser
 inspection confirmed language switching/persistence and saved campaign reads/edit
 page rendering without data mutations. See the [frontend verification record](../frontend/PHASE_4_VERIFICATION.md)
 for current checks and remaining manual work. Test counts are evidence from a run,

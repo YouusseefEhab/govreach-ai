@@ -6,6 +6,7 @@ import { ErrorNotice } from '../components/Feedback';
 import { messages } from '../messages';
 import DeleteCampaign from '../components/DeleteCampaign';
 import GenerationWorkspace from '../components/GenerationWorkspace';
+import ImageWorkspace from '../components/ImageWorkspace';
 const languages: Record<string, string> = { arabic: messages.arabic, english: messages.english, both: messages.both };
 export default function CampaignDetail() {
     useInterfaceLanguage();
@@ -15,6 +16,7 @@ export default function CampaignDetail() {
     const query = useQuery(campaignQuery(id));
     const { state } = useLocation();
     const generating = useIsMutating({ mutationKey: ['generate-text', id] }) > 0;
+    const generatingImage = useIsMutating({ mutationKey: ['generate-image', id] }) > 0;
     if (!validId)
         return <section className="panel"><h1>{t("رقم الحملة غير صحيح")}</h1><Link className="text-link" to="/campaigns">{t("ارجع للحملات")}</Link></section>;
     return (<section>
@@ -24,6 +26,10 @@ export default function CampaignDetail() {
       {query.isSuccess && <>
         {(state?.created || state?.updated) && <p className="notice success-notice" role="status">{state?.updated ? t('تم حفظ التعديلات بنجاح.') : t('تم حفظ الحملة بنجاح.')}</p>}
         <div className="page-heading"><p className="eyebrow">{t("تفاصيل الحملة · رقم ")}<bdi>{query.data.id}</bdi></p><h1 dir="auto">{query.data.title}</h1></div>
+        <nav className="campaign-controls" aria-label={t('أقسام الحملة')}>
+          <a className="button secondary" href="#generation-heading">{t('توليد نص الحملة')}</a>
+          <a className="button secondary" href="#image-workspace-heading">{t('صور الحملة')}</a>
+        </nav>
         <article className="panel campaign-detail">
           <h2>{t("هدف الحملة")}</h2>
           <p className="campaign-objective" dir="auto">{query.data.objective}</p>
@@ -34,11 +40,12 @@ export default function CampaignDetail() {
             <div><dt>{t("تاريخ الإنشاء")}</dt><dd><time dateTime={query.data.created_at}>{new Intl.DateTimeFormat(getInterfaceLocale(), { dateStyle: 'medium' }).format(new Date(query.data.created_at))}</time></dd></div>
           </dl>
         </article>
-        {!generating && <div className="campaign-controls">
+        {!generating && !generatingImage && <div className="campaign-controls">
           <Link className="button" to={`/campaigns/${id}/edit`}>{t("تعديل الحملة")}</Link>
           <DeleteCampaign key={id} campaign={query.data}/>
         </div>}
         <GenerationWorkspace key={id} campaign={query.data}/>
+        <ImageWorkspace key={`images-${id}`} campaign={query.data}/>
       </>}
     </section>);
 }

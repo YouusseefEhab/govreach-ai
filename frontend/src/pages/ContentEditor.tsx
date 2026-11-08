@@ -52,6 +52,8 @@ function EditorForm({ initial }: {
             reset(response.content);
             client.setQueryData(contentQuery(response.id).queryKey, response);
             void client.invalidateQueries({ queryKey: ['campaign-contents', response.campaign_id] });
+            void client.invalidateQueries({ queryKey: ['campaign-images', response.campaign_id] });
+            void client.invalidateQueries({ queryKey: ['image'] });
             setNotice(data.content ? t('تم حفظ التعديلات. النسخة رجعت لمسودة للمراجعة.') : response.review_status === 'approved' ? t('تم اعتماد النسخة دي.') : t('تم رفض النسخة دي.'));
         }
         catch (error) {

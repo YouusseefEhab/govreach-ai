@@ -39,7 +39,10 @@ and a fake-default pipeline are available, with a rollback-only diagnostic.
 A [Cloudflare image adapter](docs/CLOUDFLARE_SETUP.md) is implemented and mock-tested;
 the user confirmed its explicit live connection diagnostic passed. Image generation,
 history, verified preview/download, independent review and local cleanup are
-available through the API. The image frontend is next. Paid image APIs are deferred.
+available through the API. The [image frontend](frontend/PHASE_5_IMAGES.md) now
+supports approved-source selection, generation/recovery, saved history, preview,
+download and independent review. Its browser walkthrough used isolated fake
+images; real-image visual-quality review remains next. Paid image APIs are deferred.
 Video with narration/sound, four video export formats and direct social publishing
 are planned later; they are not implemented. Authentication and cloud deployment
 also remain later.
@@ -50,7 +53,7 @@ also remain later.
 | --- | --- |
 | API | Python 3.12, FastAPI, Pydantic |
 | Database | PostgreSQL 16, SQLAlchemy, Alembic |
-| AI | Google Gemini API and official Python SDK |
+| AI | Google Gemini API for text; Cloudflare Workers AI for images |
 | Frontend | React, TypeScript, Vite |
 | Verification | pytest, API diagnostics, build/lint |
 
@@ -149,8 +152,10 @@ npm test
 npm run build
 ```
 
-The backend has 260 passing tests. Image generation/history/file/review endpoints
-and local cleanup are implemented; see [image API testing](docs/IMAGE_API_TESTING.md).
+The latest backend suite passed 260 tests. The frontend has 67 passing tests,
+including the existing campaign/text checks and new image checks; lint and
+production build pass. Image generation/history/file/review endpoints and local
+cleanup are implemented; see [image API testing](docs/IMAGE_API_TESTING.md).
 The image diagnostic is fake by default;
 `--cloudflare` makes one explicit image request after Free-plan configuration. Live text
 diagnostics are opt-in: add `--live` to

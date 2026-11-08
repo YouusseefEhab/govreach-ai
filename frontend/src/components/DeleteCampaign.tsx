@@ -4,7 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { deleteCampaign } from '../services/api';
 import { campaignQuery } from '../queries';
-import type { Campaign, StoredContent } from '../services/types';
+import type { Campaign, StoredContent, StoredImage } from '../services/types';
+import { clearImageAttempt } from '../services/images';
 export function DeleteConfirmation({ title, busy, error, confirm, cancel }: {
     title: string;
     busy: boolean;
@@ -18,6 +19,7 @@ export function DeleteConfirmation({ title, busy, error, confirm, cancel }: {
     return (<section className="notice error-notice" aria-labelledby="delete-heading" aria-busy={busy}>
       <h2 id="delete-heading">{t("متأكد إنك عايز تحذف الحملة؟")}</h2>
       <p>{t("حذف ")}<bdi>{title}</bdi>{t(" هيمسح كل المحتوى المتولّد وسجل التوليد المرتبط بالحملة دي. مش هتقدر ترجعهم من التطبيق.")}</p>
+      <p>{t('الحذف بيشمل كمان سجل الصور وملفاتها المحلية.')}</p>
       {error && <p role="alert">{t(error.message)}{t(" لو الاتصال اتقطع، راجع قائمة الحملات للتأكد من النتيجة.")}</p>}
       <div className="form-actions">
         <button ref={cancelRef} className="button secondary" disabled={busy} onClick={cancel}>{t("إلغاء الحذف")}</button>
@@ -38,6 +40,13 @@ export default function DeleteCampaign({ campaign }: {
         mutationFn: () => deleteCampaign(campaign.id),
         retry: false,
         onSuccess: async () => {
+            clearImageAttempt(campaign.id);
+            await client.cancelQueries({ queryKey: ['campaign-images', campaign.id] });
+            client.removeQueries({ queryKey: ['campaign-images', campaign.id] });
+            const imageFilter = { predicate: (query: { queryKey: readonly unknown[]; state: { data: unknown } }) =>
+                query.queryKey[0] === 'image' && (query.state.data as StoredImage | undefined)?.campaign_id === campaign.id };
+            await client.cancelQueries(imageFilter);
+            client.removeQueries(imageFilter);
             await client.cancelQueries({ queryKey: campaignQuery(campaign.id).queryKey });
             client.removeQueries({ queryKey: campaignQuery(campaign.id).queryKey });
             await client.cancelQueries({ queryKey: ['campaign-contents', campaign.id] });

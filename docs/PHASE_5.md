@@ -2,6 +2,24 @@
 
 Prepared 2026-10-21. **Foundation approved and implemented; paid usage remains unapproved.**
 
+## Latest increment image frontend 8 November 2026
+
+The bilingual image workspace is implemented in campaign details using the new
+design: approved-source selection, reviewed brief/style, explicit generation,
+same-key recovery across reload in the same tab, paginated saved image history,
+preview/download, independent review and stale-source warnings. Source edits
+invalidate image queries. Loading a preview and acknowledging review are required
+before approval; backend verification remains authoritative. Failed/pending/unknown
+records are inspectable without pretending an image is ready.
+
+Browser verification used a disposable fake-image API and temporary database/files,
+not the user's Cloudflare account or real campaigns. One fake image was generated,
+downloaded, approved, reloaded, marked stale by editing its disposable source and
+then rejected. Provider call count stayed one. See [image interface and testing](../frontend/PHASE_5_IMAGES.md)
+for evidence, recovery semantics and limitations. Live visual quality and full
+mobile/keyboard sign-off remain pending. Earlier progress entries below record
+the previous milestones rather than current UI availability.
+
 ## Status update 8 November 2026
 
 We stopped after the image backend/API and cleanup increment. The user's GitHub

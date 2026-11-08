@@ -56,3 +56,33 @@ export interface GenerationResponse {
 export type ContentUpdate =
   | { content: Partial<TextPackage>; review_status?: never }
   | { review_status: StoredContent['review_status']; content?: never }
+
+export interface ImageGenerationRequest {
+  source_content_id: number
+  visual_brief: string
+  style: 'illustration' | 'photorealistic'
+}
+
+export interface StoredImage {
+  id: number
+  campaign_id: number
+  source_content_id: number
+  idempotency_key: string
+  request_state: 'reserved' | 'generating' | 'ready' | 'failed' | 'outcome_unknown'
+  review_status: 'draft' | 'approved' | 'rejected'
+  source_is_current: boolean
+  source_snapshot: Record<string, unknown>
+  source_references: Record<string, unknown>[]
+  visual_brief: string
+  style: string
+  provider: string
+  model: string
+  prompt_version: string
+  mime_type: 'image/png' | 'image/jpeg' | null
+  width: number | null
+  height: number | null
+  byte_count: number | null
+  failure_code: string | null
+  created_at: string
+  updated_at: string
+}

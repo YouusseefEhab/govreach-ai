@@ -15,7 +15,7 @@ let setUiLanguage: (language: 'ar' | 'en') => void
 let renderReview: (dirty: boolean, busy: boolean, status?: string) => string
 
 before(async () => {
-  server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
+  server = await createServer({ cacheDir: 'node_modules/.vite-layout-tests', server: { middlewareMode: true, ws: false }, appType: 'custom' })
   App = (await server.ssrLoadModule('/src/App.tsx')).default
   setUiLanguage = (await server.ssrLoadModule('/src/i18n.ts')).setInterfaceLanguage
   const { DeleteConfirmation } = await server.ssrLoadModule('/src/components/DeleteCampaign.tsx')

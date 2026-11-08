@@ -4,8 +4,10 @@ React + TypeScript + Vite application for the graduation project. The current
 implementation contains an Arabic-default bilingual RTL/LTR layout, welcome page, backend health
 check, paginated campaign list, shared campaign create/edit form, saved campaign
 details, confirmed deletion, text generation, paginated saved text/source cards,
-and per-language content editing/approval/rejection. Further interface work is planned in
-[Phase 4](PHASE_4.md).
+and per-language content editing/approval/rejection. Campaign details also include
+approved-source image generation, saved-request recovery, paginated image history,
+preview/download and separate review. See [image interface testing](PHASE_5_IMAGES.md)
+and the earlier [Phase 4 plan](PHASE_4.md).
 
 ## Development
 

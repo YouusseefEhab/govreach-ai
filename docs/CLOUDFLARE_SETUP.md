@@ -86,4 +86,4 @@ retry. Errors do not include token values or raw provider response bodies.
 
 Image endpoints and file cleanup/recovery are now implemented. Follow
 [image API testing](IMAGE_API_TESTING.md) for Swagger steps. The bilingual image
-UI remains next.
+UI is implemented; follow [image interface testing](../frontend/PHASE_5_IMAGES.md).
