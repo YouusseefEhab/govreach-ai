@@ -2,6 +2,19 @@
 
 Prepared 2026-10-21. **Foundation approved and implemented; paid usage remains unapproved.**
 
+## Status update 8 November 2026
+
+We stopped after the image backend/API and cleanup increment. The user's GitHub
+frontend redesign is now integrated with the existing campaign/text workflows.
+Next: manually review an actual generated image, then implement image selection,
+generation, history, preview/download and independent review in the redesigned UI.
+The image UI and human visual pilot remain incomplete.
+
+The user also requested future complete videos with sound, all four video export
+formats and direct social publishing. These are later milestones, not additions
+already implemented in Phase 5. See [current status and roadmap](PROJECT_STATUS.md)
+for agreed scope, dependencies and remaining decisions.
+
 ## Latest progress — image API and cleanup
 
 Implemented generation, paginated history, metadata, verified preview/download and

@@ -1,40 +1,96 @@
-import { t, useInterfaceLanguage } from '../i18n'
-import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { healthQuery } from '../queries';
-import { ErrorNotice } from '../components/Feedback';
+import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
+import { healthQuery } from '../queries'
+import { useLanguage } from '../hooks/useLanguage'
+
 export default function Home() {
-    useInterfaceLanguage();
-    const health = useQuery(healthQuery);
-    return (<>
-      <section className="welcome-panel">
-        <div className="welcome-copy">
-          <p className="eyebrow">{t("سلامة أكتر. وعي أقرب.")}</p>
-          <h1>{t("كل حملة بتبدأ")}<br />{t("برسالة تفرق.")}</h1>
-          <p className="description">{t("حضّر مسودات توعية للسلامة المرورية بالعربي المصري والإنجليزي، وراجعها قبل ما تستخدمها.")}</p>
-          <Link className="button" to="/campaigns">{t("شوف حملاتك ")}<span className="direction-arrow" aria-hidden="true">←</span></Link>
-        </div>
-        <div className="journey-card">
-          <span className="pill">{t("رحلة الرسالة")}</span>
-          <ol>
-            <li><b>{t("حدّد الهدف")}</b><span>{t("رسالة مناسبة للجمهور اللي عايز توصله.")}</span></li>
-            <li><b>{t("حضّر المسودة")}</b><span>{t("محتوى بالعربي المصري والإنجليزي.")}</span></li>
-            <li><b>{t("راجع واعتمد")}</b><span>{t("راجع الصياغة والمعنى والمصادر لكل لغة.")}</span></li>
-          </ol>
+  const { t } = useLanguage()
+  const { data, isLoading, isError } = useQuery(healthQuery)
+  const healthy = !isLoading && !isError && data?.status === 'healthy'
+  const features = [
+    { k: 'f1', title: t('home.f1.t'), desc: t('home.f1.d') },
+    { k: 'f2', title: t('home.f2.t'), desc: t('home.f2.d') },
+    { k: 'f3', title: t('home.f3.t'), desc: t('home.f3.d') },
+    { k: 'f4', title: t('home.f4.t'), desc: t('home.f4.d') },
+  ]
+
+  return (
+    <div className="stack">
+      <section className="card">
+        <div
+          className="card__body"
+          style={{ textAlign: 'center', padding: '48px 24px' }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: 16,
+            }}
+          >
+            <img
+              src="/logo.png"
+              alt="Egyptian Smart Awareness Seal"
+              style={{
+                width: 120,
+                height: 120,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 4px 12px rgba(200,164,76,0.35))',
+              }}
+            />
+          </div>
+          <p className="eyebrow">{t('home.eyebrow')}</p>
+          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', margin: '12px 0' }}>
+            {t('home.title')}
+          </h1>
+          <p
+            style={{
+              maxWidth: 640,
+              margin: '0 auto',
+              color: 'var(--ink-soft)',
+              fontSize: 18,
+            }}
+          >
+            {t('home.subtitle')}
+          </p>
+          <div className="row" style={{ justifyContent: 'center', marginTop: 24 }}>
+            <Link to="/campaigns/new" className="btn btn-gold">
+              {t('home.ctaPrimary')}
+            </Link>
+            <Link to="/campaigns" className="btn btn-ghost">
+              {t('home.ctaSecondary')}
+            </Link>
+          </div>
+          <p style={{ marginTop: 22 }}>
+            <span className={`badge ${healthy ? 'badge-approved' : 'badge-draft'}`}>
+              {isLoading
+                ? t('common.loading')
+                : healthy
+                  ? t('home.status.ok')
+                  : t('home.status.bad')}
+            </span>
+          </p>
         </div>
       </section>
-      <section className="home-details" aria-label={t("عن مساحة العمل")}>
-        <article className="panel">
-          <span className="eyebrow">{t("مجالنا الأول")}</span>
-          <h2>{t("السلامة المرورية")}</h2>
-          <p>{t("من ربط حزام الأمان لتجنّب التشتت على الطريق، الوعي بيبدأ بكلام واضح وقريب من الناس.")}</p>
-        </article>
-        <article className="panel">
-          <span className="eyebrow">{t("المراجعة أولاً")}</span>
-          <h2>{t("المسودة بداية للمراجعة")}</h2>
-          <p>{t("المصادر بتساعد في إعداد المسودة. وجودها مش ضمان لصحة كل جملة، واعتماد المحتوى مش معناه نشره.")}</p>
-        </article>
+
+      <section
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))',
+          gap: 16,
+        }}
+      >
+        {features.map((f) => (
+          <div key={f.k} className="card">
+            <div className="card__body">
+              <h3 style={{ fontSize: 16 }}>{f.title}</h3>
+              <p style={{ color: 'var(--ink-soft)', fontSize: 14, margin: '6px 0 0' }}>
+                {f.desc}
+              </p>
+            </div>
+          </div>
+        ))}
       </section>
-      {health.isError && <ErrorNotice error={health.error} retry={() => { void health.refetch(); }}/>}
-    </>);
+    </div>
+  )
 }

@@ -3,6 +3,8 @@
 | Document | Scope |
 | --- | --- |
 | [Project README](../README.md) | Architecture, setup, API, and checks |
+| [Current status and next steps](PROJECT_STATUS.md) | Where we stopped, redesign integration, immediate tasks and future video/export/publishing scope |
+| [Team introduction](TEAM_INTRODUCTION.md) | Simple onboarding summary for new members |
 | [Phase 2](../backend/PHASE_2.md) | Campaign CRUD and Swagger verification |
 | [Phase 3](../backend/PHASE_3.md) | Generation, storage, sources, and review |
 | [Pilot evaluation](../backend/PHASE_3_EVALUATION.md) | Results, quality findings, limitations |

@@ -1,5 +1,28 @@
 # Phase 4 verification — 2026-10-21
 
+## Redesign integration 8 November 2026
+
+Integrated the user's GitHub main changes through `16be53c` with the feature
+branch's existing campaign/text workflows. Adopted the logo, navy/gold theme,
+top navigation and homepage; retained campaign edit/content editor routes,
+partial updates, independent review, paginated history, exact-text copy controls,
+safe source handling, generation recovery and unsaved-edit navigation blocking.
+The design language hook uses the existing persisted preference rather than a
+second language store. Arabic remains the initial language.
+
+The existing 46 frontend tests, source lint and production build passed during integration.
+The backend regression suite was rerun and all 260 tests passed.
+Updated two shell assertions for the intentional logo/navigation/language-control
+design changes; existing API/editor/generation safeguards continue to pass.
+The >500 kB bundle advisory remains non-blocking. Browser inspection confirmed
+the redesigned Arabic homepage, English switch, preference persistence after
+reload, saved campaign list and campaign details, copy/editor links and populated
+campaign edit route. Database services were restarted, and the UI showed a healthy
+backend with saved campaigns. These were read-only checks: no campaign edits,
+deletions or AI generations were submitted. A full-page Arabic screenshot was
+captured for review. Earlier user-confirmed mobile tests predate this redesign;
+full mobile/keyboard sign-off is still pending.
+
 ## Core workflow: user-confirmed
 
 The user reported that the complete frontend workflow passed: campaign creation,

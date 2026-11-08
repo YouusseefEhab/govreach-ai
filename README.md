@@ -11,6 +11,9 @@ in draft until reviewed; approval does not publish it or imply government endors
 
 ## Current capabilities
 
+See [current status and next steps](docs/PROJECT_STATUS.md) for the latest milestone
+and the agreed future video/export/social-publishing scope.
+
 - Campaign CRUD with pagination and validation.
 - Five-field text packages in Egyptian Arabic, English, or both.
 - Curated WHO summaries supplied to generation, with stored source provenance.
@@ -26,6 +29,10 @@ The UI also supports partial content edits, draft reset, and separate per-langua
 approval/rejection, an English interface switch, and exact-text copy controls.
 The user confirmed the core workflow and mobile checks; keyboard testing is
 deferred. See the [Phase 4 verification record](frontend/PHASE_4_VERIFICATION.md).
+The user's GitHub redesign has been integrated: logo, navy/gold visual theme,
+top navigation and homepage, preserving campaign editing, content review, request
+safeguards and the saved Arabic/English interface preference. Existing functional
+campaign/editor screens remain available within the redesigned shell.
 The [Phase 5 image foundation](docs/PHASE_5.md) adds separate request metadata,
 source snapshots, request identity and local byte storage. Decoded-image validation
 and a fake-default pipeline are available, with a rollback-only diagnostic.
@@ -33,8 +40,9 @@ A [Cloudflare image adapter](docs/CLOUDFLARE_SETUP.md) is implemented and mock-t
 the user confirmed its explicit live connection diagnostic passed. Image generation,
 history, verified preview/download, independent review and local cleanup are
 available through the API. The image frontend is next. Paid image APIs are deferred.
-Video, authentication, publishing
-and cloud deployment remain later.
+Video with narration/sound, four video export formats and direct social publishing
+are planned later; they are not implemented. Authentication and cloud deployment
+also remain later.
 
 ## Technology and architecture
 

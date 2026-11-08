@@ -1,5 +1,16 @@
 # Phase 4 — GovReach AI frontend plan
 
+## Integration update 8 November 2026
+
+The user's GitHub main redesign has been integrated into the feature branch:
+logo, navy/gold theme, top navigation, homepage and bilingual design strings.
+Existing campaign editing, standalone content editing/review, pagination, copy,
+dirty-edit protection and generation recovery behavior remain on their existing
+routes. The redesigned shell shares the original persisted language store and
+defaults to Arabic; the data router remains in use for navigation blocking.
+See [current project status](../docs/PROJECT_STATUS.md) for immediate image work
+and future video/export/publishing scope. The original plan below is historical.
+
 ## Goal and current baseline
 
 Users should be able to create a campaign, generate Egyptian Arabic/English
