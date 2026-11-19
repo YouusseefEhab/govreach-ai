@@ -1,7 +1,8 @@
 
 from datetime import datetime, timezone
+from decimal import Decimal
 
-from sqlalchemy import DateTime, Integer, String, Text
+from sqlalchemy import DateTime, Integer, JSON, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -49,3 +50,13 @@ class Campaign(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+
+    # A NULL campaign type represents the legacy workflow.
+    campaign_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    target_audience: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    business_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    offer_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    budget_amount: Mapped[Decimal | None] = mapped_column(Numeric(14, 2), nullable=True)
+    budget_currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    channels: Mapped[list[str] | None] = mapped_column(JSON(none_as_null=True), nullable=True)
+    brief: Mapped[str | None] = mapped_column(Text, nullable=True)
