@@ -1,9 +1,9 @@
-# GovReach AI frontend
+# MarketPilot AI frontend
 
-React + TypeScript + Vite application for the graduation project. The current
-implementation contains a welcome page and backend health check. Campaign,
-generation, history, source, editing, and review screens are planned in
-[Phase 4](PHASE_4.md).
+React + TypeScript + Vite application with English and Arabic interfaces and RTL
+layout for Arabic. The current workflow covers traffic-safety campaign creation
+and listing, text generation, draft history and sources, editing, and review.
+See the [Phase 4 plan](PHASE_4.md) for the original frontend scope.
 
 ## Development
 
@@ -15,8 +15,8 @@ npm run dev
 ```
 
 Open http://localhost:5173. Run FastAPI separately on http://localhost:8000.
-The API client currently uses that backend URL. Configurable frontend API settings
-are part of Phase 4. Never put provider keys in browser code.
+The API client defaults to that backend URL and reads `VITE_API_BASE_URL` when
+configured. Never put provider keys in browser code.
 
 ## Verification
 

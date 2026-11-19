@@ -4,14 +4,15 @@ type Dict = Record<string, string>
 
 export const messages: Record<Lang, Dict> = {
   en: {
-    'brand.tagline': 'Government awareness, reimagined',
+    'brand.name': 'MarketPilot AI',
+    'brand.tagline': 'AI marketing for small businesses',
+    'brand.prototype': 'Graduation project prototype',
     'nav.home': 'Home',
     'nav.campaigns': 'Campaigns',
     'nav.new': 'New campaign',
     'lang.en': 'EN',
     'lang.ar': 'ع',
-    'home.eyebrow': 'GOVERNMENT AWARENESS, REIMAGINED',
-    'home.title': 'GovReach AI',
+    'home.eyebrow': 'CAMPAIGN WORKSPACE',
     'home.subtitle':
       'Create evidence-based, bilingual traffic-safety awareness campaign drafts — Egyptian Arabic and English — grounded in official sources, ready for human review.',
     'home.ctaPrimary': 'Create your first campaign',
@@ -96,14 +97,15 @@ export const messages: Record<Lang, Dict> = {
     'field.call_to_action': 'Call to action',
   },
   ar: {
-    'brand.tagline': 'التوعية الحكومية بشكل جديد',
+    'brand.name': 'MarketPilot AI',
+    'brand.tagline': 'تسويق بالذكاء الاصطناعي للشركات الصغيرة',
+    'brand.prototype': 'نموذج أولي لمشروع تخرج',
     'nav.home': 'الرئيسية',
     'nav.campaigns': 'الحملات',
     'nav.new': 'حملة جديدة',
     'lang.en': 'EN',
     'lang.ar': 'ع',
-    'home.eyebrow': 'التوعية الحكومية بشكل جديد',
-    'home.title': 'GovReach AI',
+    'home.eyebrow': 'مساحة عمل الحملات',
     'home.subtitle':
       'أنشئ مسودات حملات توعية لسلامة المرور ثنائية اللغة — بالعامية المصرية والإنجليزية — مستندة إلى مصادر رسمية وجاهزة للمراجعة البشرية.',
     'home.ctaPrimary': 'أنشئ حملتك الأولى',

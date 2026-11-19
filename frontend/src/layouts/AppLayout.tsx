@@ -13,13 +13,13 @@ export default function AppLayout() {
           <NavLink to="/" className="brand">
             <span className="brand__emblem" aria-hidden="true">
               <img
-                src="/logo.png"
-                alt="Egyptian Smart Awareness Seal"
+                src="/marketpilot-mark.png"
+                alt=""
                 style={{ width: 38, height: 38, objectFit: 'contain' }}
               />
             </span>
             <span className="brand__title">
-              <b>GovReach AI</b>
+              <b>{t('brand.name')}</b>
               <span>{t('brand.tagline')}</span>
             </span>
           </NavLink>
@@ -59,7 +59,9 @@ export default function AppLayout() {
       </main>
       <footer className="app-footer">
         <p className="disclaimer">{t('home.disclaimer')}</p>
-        <p style={{ marginTop: 6 }}>GovReach AI — graduation prototype</p>
+        <p style={{ marginTop: 6 }}>
+          <bdi>{t('brand.name')}</bdi> · {t('brand.prototype')}
+        </p>
       </footer>
     </div>
   )

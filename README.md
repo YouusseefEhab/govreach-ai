@@ -1,13 +1,12 @@
-# GovReach AI
-
-Generative AI for Egyptian government awareness campaign drafts, starting with
-traffic safety in Egyptian Arabic and English.
+# MarketPilot AI
 
 [![CI](https://github.com/YouusseefEhab/govreach-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/YouusseefEhab/govreach-ai/actions/workflows/ci.yml)
 
-GovReach AI is a graduation-project prototype combining campaign management,
-API-based text generation, curated references, and review. Generated content stays
-in draft until reviewed; approval does not publish it or imply government endorsement.
+MarketPilot AI is a graduation-project prototype for an AI-powered marketing
+agency platform for small businesses. The current workflow manages traffic-safety
+awareness campaigns and generates drafts in Egyptian Arabic and English.
+Generated content stays in draft until reviewed. Approval does not publish it or
+imply government endorsement.
 
 ## Current capabilities
 
@@ -18,10 +17,22 @@ in draft until reviewed; approval does not publish it or imply government endors
 - Partial editing and independent approval/rejection of each language.
 - Edited packages reset to draft for another review.
 
-The backend and Phase 3 pilot evaluation are complete. The frontend currently
-contains a React welcome screen and backend health check; the full campaign UI is
-planned in Phase 4. Images, video, authentication, publishing, and cloud deployment
-are future milestones.
+The React frontend provides an English/Arabic interface with RTL layout in Arabic.
+It supports campaign creation and listing, text generation, history, draft editing,
+and review. Images, video, authentication, publishing, and cloud deployment are
+future milestones.
+
+## Legacy GovReach identifiers
+
+- Docker retains `govreach-postgres` and `govreach-redis`. Local PostgreSQL
+  retains the `govreach` database and user and their matching development
+  credentials so existing environments and connection strings still work.
+- CI retains the `govreach_test` PostgreSQL user and database. The CI badge
+  still points to the existing `YouusseefEhab/govreach-ai` GitHub repository.
+- The archived graduation plan, Phase 3 evaluation, Phase 4 plan, and original
+  seal files retain the former branding as project history. The existing
+  `/logo.png` URL still serves the original seal for direct references. The
+  storage diagnostic retains its original label on its rolled-back test row.
 
 ## Technology and architecture
 
