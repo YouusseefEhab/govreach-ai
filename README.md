@@ -109,7 +109,8 @@ backend CORS origin. The browser does not need a Gemini key.
 | GET / PATCH | `/api/v1/contents/{id}` | Read/edit/review package |
 
 Campaign deletion also removes its generated content. Generation uses the stored
-campaign language and accepts an audience and tone:
+campaign language. Legacy traffic-safety requests supply an audience and can set
+the tone:
 
 ```json
 {
@@ -117,6 +118,23 @@ campaign language and accepts an audience and tone:
   "tone": "informative"
 }
 ```
+
+Marketing campaigns accept `{}` to use the stored target audience. An explicit
+`audience` overrides it for that draft. Remove pasted credentials such as API
+keys, authorization tokens, and private keys from campaign text before generating.
+The API rejects obvious credential patterns with HTTP 422 before sending the
+input to the provider or saving a generation. Pattern matching can miss secrets.
+
+Store approved prices, percentage promotions, and explicit guarantee terms in the
+offer summary. The API rejects drafts with certain unsupported amounts,
+promotions, and guarantees with HTTP 502 and saves no packages from that request.
+The checks cover common EGP and USD formats and selected English and Arabic
+phrases. They cannot verify all claims, phrasing, or offer conditions. Human
+review is still required before publication.
+
+Structured budget fields stay out of marketing prompts and snapshots. Budget
+details pasted into free text may still be sent to the provider or saved in a
+snapshot. Keep internal budgets out of the brief and other generation inputs.
 
 Provider failures return controlled errors. A lost client connection does not
 prove server cancellation; inspect saved history before submitting again.
