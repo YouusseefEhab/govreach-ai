@@ -206,6 +206,27 @@ user and port, and the exact test database name. Query parameters and other
 database names are rejected. The workflow verifies the database and schema on
 the server before migrating and scopes cleanup to the schema created by the test.
 
+### Browser end-to-end tests
+
+Install the frontend dev dependencies with `npm ci` from `frontend`. The suite
+uses Playwright with an installed Google Chrome browser. To use Microsoft Edge,
+set `$env:MARKETPILOT_E2E_BROWSER = 'msedge'` for the run.
+
+With the dedicated PostgreSQL database prepared, use the PowerShell block above
+to set the test URL. Replace its pytest command with this command from `backend`.
+
+```powershell
+.venv/Scripts/python.exe -m pytest -q -s --postgres-integration tests/browser_e2e.py
+```
+
+The harness builds React into a temporary directory and serves it with the real
+FastAPI routes on a random loopback port. It verifies a fresh migrated test
+schema and a server-side fake provider before Playwright proceeds. Browser
+requests to other origins are blocked. The race test delays delivery of real API
+responses, and the fixture shuts down the server and removes its schema after
+the run. Browser results and build artifacts are written under pytest's temporary
+directory.
+
 ## Evaluation and limitations
 
 The three-topic pilot produced six structurally valid bilingual drafts. Every
