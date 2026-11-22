@@ -3,6 +3,8 @@ from decimal import Decimal
 
 import pytest
 from alembic import command
+from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
@@ -17,9 +19,10 @@ PACKAGE_FIELDS = {"headline", "slogan", "awareness_message", "social_caption", "
 
 
 @pytest.fixture
-def test_engine(migration_db, request):
+def test_engine(request):
     # The shared HTTP client uses this migrated engine for each request session.
-    config, engine = migration_db
+    postgres = request.config.getoption("--postgres-integration")
+    config, engine = request.getfixturevalue("postgres_migration_db" if postgres else "migration_db")
     if getattr(request, "param", False):
         command.upgrade(config, "b7f23e8d10a4")
         with engine.begin() as connection:
@@ -32,6 +35,11 @@ def test_engine(migration_db, request):
                 [{"id": 1, "domain": "traffic_safety"}, {"id": 2, "domain": "marketing"}],
             )
     command.upgrade(config, "head")
+    with engine.connect() as connection:
+        assert connection.dialect.name == ("postgresql" if postgres else "sqlite")
+        assert MigrationContext.configure(connection).get_current_revision() == (
+            ScriptDirectory.from_config(config).get_current_head()
+        )
     return engine
 
 

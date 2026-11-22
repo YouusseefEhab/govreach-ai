@@ -9,6 +9,8 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
+from postgres_integration import isolated_postgres_schema, postgres_test_url
+
 # Configure before importing app settings; never use the development database.
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
@@ -21,6 +23,19 @@ from app.core.database import Base, get_db
 from app.main import app
 from app.providers.gemini import get_text_provider
 from app.schemas.generation import TextPackage
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--postgres-integration",
+        action="store_true",
+        help="Run the marketing integration scenarios against the dedicated PostgreSQL test database.",
+    )
+
+
+def pytest_configure(config):
+    if config.getoption("--postgres-integration"):
+        postgres_test_url()
 
 
 @pytest.fixture(autouse=True)
@@ -98,6 +113,14 @@ def migration_db(tmp_path, monkeypatch):
         yield config, engine
     finally:
         engine.dispose()
+
+
+@pytest.fixture
+def postgres_migration_db(monkeypatch):
+    with isolated_postgres_schema() as (url, engine):
+        monkeypatch.setattr(settings, "database_url", url.render_as_string(hide_password=False))
+        config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
+        yield config, engine
 
 
 @pytest.fixture

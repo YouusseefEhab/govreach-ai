@@ -154,10 +154,57 @@ npm run lint
 npm run build
 ```
 
-The backend has 165 passing tests. Live diagnostics are opt-in: add `--live` to
+Live diagnostics are opt-in. Add `--live` to
 `scripts.check_generation_api` for one provider request or run
 `scripts.evaluate_text_generation --live` for three. Quotas/charges depend on API
 project billing. Diagnostic rows are rolled back; captured IDs are not persistent.
+
+### Isolated PostgreSQL integration tests
+
+The default pytest run uses SQLite. The optional PostgreSQL mode runs the same
+nine marketing scenarios against a pre-created local database named
+`marketpilot_integration_test`. Each test upgrades its own uniquely named
+schema through Alembic, checks the revision, and removes that schema afterward.
+The tests use a fake text provider.
+
+For one-time setup in PowerShell, run the following against the existing
+`govreach-postgres` container. The read-only catalog check confirms the
+maintenance connection, the development database, and the absence of the test
+database before creation.
+
+```powershell
+$marketPilotDatabaseCheck = docker exec govreach-postgres psql -X -w -U govreach -d postgres -v ON_ERROR_STOP=1 -At -c "SELECT current_database(), current_user, EXISTS (SELECT FROM pg_database WHERE datname = 'govreach'), EXISTS (SELECT FROM pg_database WHERE datname = 'marketpilot_integration_test');"
+if ($LASTEXITCODE -ne 0 -or $marketPilotDatabaseCheck -ne 'postgres|govreach|t|f') {
+    throw "Database setup stopped. Confirm the connection and check for an existing test database."
+}
+docker exec govreach-postgres psql -X -w -U govreach -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE marketpilot_integration_test WITH OWNER govreach TEMPLATE template0;"
+if ($LASTEXITCODE -ne 0) { throw "Could not create the dedicated test database." }
+```
+
+If the name already exists, stop the setup and confirm that it belongs to this
+test workflow before using it. The test runner never creates or drops the
+database itself.
+
+From `backend`, supply the local PostgreSQL login password when prompted.
+The URL template is
+`postgresql+psycopg://govreach:<encoded-password>@127.0.0.1:5432/marketpilot_integration_test`.
+
+```powershell
+try {
+    $marketPilotTestPassword = Read-Host 'Local PostgreSQL password for govreach' -AsSecureString
+    $marketPilotTestEncoded = [Uri]::EscapeDataString([Net.NetworkCredential]::new('', $marketPilotTestPassword).Password)
+    $env:MARKETPILOT_TEST_DATABASE_URL = "postgresql+psycopg://govreach:${marketPilotTestEncoded}@127.0.0.1:5432/marketpilot_integration_test"
+    .venv/Scripts/python.exe -m pytest -q --postgres-integration tests/test_marketing_integration.py
+} finally {
+    Remove-Item Env:MARKETPILOT_TEST_DATABASE_URL -ErrorAction SilentlyContinue
+    Remove-Variable marketPilotTestPassword, marketPilotTestEncoded -ErrorAction SilentlyContinue
+}
+```
+
+PostgreSQL mode requires the separate test URL with a loopback host, explicit
+user and port, and the exact test database name. Query parameters and other
+database names are rejected. The workflow verifies the database and schema on
+the server before migrating and scopes cleanup to the schema created by the test.
 
 ## Evaluation and limitations
 
