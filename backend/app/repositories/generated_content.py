@@ -1,5 +1,6 @@
 from copy import deepcopy
 from datetime import datetime, timezone
+from typing import Any
 from uuid import uuid4
 
 from sqlalchemy import select
@@ -20,6 +21,7 @@ def save_text_generation(
     model: str,
     prompt_version: str,
     source_references: list[dict] | None = None,
+    input_snapshot: dict[str, Any] | None = None,
 ) -> list[GeneratedContent]:
     """Save one complete generation atomically, preserving earlier generations."""
     expected = {
@@ -34,15 +36,16 @@ def save_text_generation(
     validated = {language: TextPackage.model_validate(package).model_dump() for language, package in packages.items()}
     generation_id = uuid4()
     created_at = datetime.now(timezone.utc)
-    snapshot = {
-        "title": campaign.title,
-        "objective": campaign.objective,
-        "domain": campaign.domain,
-        "language": campaign.language,
-        "audience": request.audience,
-        "tone": request.tone,
-        "arabic_dialect": "egyptian",
-    }
+    if input_snapshot is None:
+        input_snapshot = {
+            "title": campaign.title,
+            "objective": campaign.objective,
+            "domain": campaign.domain,
+            "language": campaign.language,
+            "audience": request.audience,
+            "tone": request.tone,
+            "arabic_dialect": "egyptian",
+        }
     rows = [
         GeneratedContent(
             campaign_id=campaign.id,
@@ -53,7 +56,7 @@ def save_text_generation(
             provider=provider,
             model=model,
             prompt_version=prompt_version,
-            input_snapshot=deepcopy(snapshot),
+            input_snapshot=deepcopy(input_snapshot),
             source_references=deepcopy(source_references or []),
             review_status="draft",
             created_at=created_at,

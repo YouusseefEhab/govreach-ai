@@ -1,34 +1,64 @@
 // Types matching the FastAPI backend contract (app/schemas/*).
 
 export type CampaignLanguage = 'arabic' | 'english' | 'both'
+export type CampaignChannel = 'social' | 'email' | 'search' | 'website' | 'print'
+export type BudgetCurrency = 'EGP' | 'USD'
 export type OutputLanguage = 'arabic' | 'english'
 export type ReviewStatus = 'draft' | 'approved' | 'rejected'
 export type GenerationTone = 'informative' | 'encouraging' | 'formal'
 
-export interface Campaign {
+export interface CampaignBudget {
+  amount: string
+  currency: BudgetCurrency
+}
+
+interface CampaignSummary {
   id: number
   title: string
   domain: string
   objective: string
-  language: CampaignLanguage
+  language: string
   status: string
   created_at: string
 }
 
-export interface CampaignCreate {
+interface LegacyCampaign extends CampaignSummary {
+  campaign_type?: null
+}
+
+export interface MarketingCampaign extends CampaignSummary {
+  campaign_type: 'marketing'
+  business_name: string | null
+  offer_summary: string | null
+  target_audience: string | null
+  budget: CampaignBudget | null
+  channels: CampaignChannel[] | null
+  brief: string | null
+}
+
+export type Campaign = LegacyCampaign | MarketingCampaign
+
+interface CampaignFields {
   title: string
   objective: string
   language?: CampaignLanguage
-  domain?: string
 }
 
-export interface CampaignUpdate {
-  title?: string
-  objective?: string
-  language?: CampaignLanguage
-  domain?: string
-  status?: string
+interface MarketingCampaignFields {
+  business_name: string
+  offer_summary: string
+  target_audience: string
+  budget?: CampaignBudget | null
+  channels?: CampaignChannel[] | null
+  brief?: string | null
 }
+
+export type CampaignCreate = CampaignFields & (
+  | { campaign_type?: null; domain?: string }
+  | ({ campaign_type: 'marketing' } & MarketingCampaignFields)
+)
+
+export type CampaignUpdate = Partial<CampaignFields & MarketingCampaignFields>
 
 export interface TextPackage {
   headline: string
@@ -74,7 +104,7 @@ export interface SavedTextGeneration {
 }
 
 export interface TextGenerationRequest {
-  audience: string
+  audience?: string
   tone?: GenerationTone
 }
 

@@ -32,8 +32,8 @@ export default function Home() {
             }}
           >
             <img
-              src="/logo.png"
-              alt="Egyptian Smart Awareness Seal"
+              src="/marketpilot-mark.png"
+              alt=""
               style={{
                 width: 120,
                 height: 120,
@@ -44,7 +44,7 @@ export default function Home() {
           </div>
           <p className="eyebrow">{t('home.eyebrow')}</p>
           <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', margin: '12px 0' }}>
-            {t('home.title')}
+            {t('brand.name')}
           </h1>
           <p
             style={{

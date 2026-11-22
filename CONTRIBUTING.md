@@ -1,4 +1,4 @@
-# Contributing to GovReach AI
+# Contributing to MarketPilot AI
 
 Start with the README and phase documents. Keep changes scoped to a feature or
 fix, preserving existing API contracts and applied migration history.

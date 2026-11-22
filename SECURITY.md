@@ -1,6 +1,6 @@
 # Security guidance
 
-GovReach AI is a local graduation-project prototype. Authentication and roles
+MarketPilot AI is a local graduation-project prototype. Authentication and roles
 are not implemented. Do not expose the current API publicly with real data or
 unrestricted paid generation access.
 

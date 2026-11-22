@@ -1,13 +1,12 @@
-# GovReach AI
-
-Generative AI for Egyptian government awareness campaign drafts, starting with
-traffic safety in Egyptian Arabic and English.
+# MarketPilot AI
 
 [![CI](https://github.com/YouusseefEhab/govreach-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/YouusseefEhab/govreach-ai/actions/workflows/ci.yml)
 
-GovReach AI is a graduation-project prototype combining campaign management,
-API-based text generation, curated references, and review. Generated content stays
-in draft until reviewed; approval does not publish it or imply government endorsement.
+MarketPilot AI is a graduation-project prototype for an AI-powered marketing
+agency platform for small businesses. The current workflow manages traffic-safety
+awareness campaigns and generates drafts in Egyptian Arabic and English.
+Generated content stays in draft until reviewed. Approval does not publish it or
+imply government endorsement.
 
 ## Current capabilities
 
@@ -18,10 +17,22 @@ in draft until reviewed; approval does not publish it or imply government endors
 - Partial editing and independent approval/rejection of each language.
 - Edited packages reset to draft for another review.
 
-The backend and Phase 3 pilot evaluation are complete. The frontend currently
-contains a React welcome screen and backend health check; the full campaign UI is
-planned in Phase 4. Images, video, authentication, publishing, and cloud deployment
-are future milestones.
+The React frontend provides an English/Arabic interface with RTL layout in Arabic.
+It supports campaign creation and listing, text generation, history, draft editing,
+and review. Images, video, authentication, publishing, and cloud deployment are
+future milestones.
+
+## Legacy GovReach identifiers
+
+- Docker retains `govreach-postgres` and `govreach-redis`. Local PostgreSQL
+  retains the `govreach` database and user and their matching development
+  credentials so existing environments and connection strings still work.
+- CI retains the `govreach_test` PostgreSQL user and database. The CI badge
+  still points to the existing `YouusseefEhab/govreach-ai` GitHub repository.
+- The archived graduation plan, Phase 3 evaluation, Phase 4 plan, and original
+  seal files retain the former branding as project history. The existing
+  `/logo.png` URL still serves the original seal for direct references. The
+  storage diagnostic retains its original label on its rolled-back test row.
 
 ## Technology and architecture
 
@@ -98,7 +109,8 @@ backend CORS origin. The browser does not need a Gemini key.
 | GET / PATCH | `/api/v1/contents/{id}` | Read/edit/review package |
 
 Campaign deletion also removes its generated content. Generation uses the stored
-campaign language and accepts an audience and tone:
+campaign language. Legacy traffic-safety requests supply an audience and can set
+the tone:
 
 ```json
 {
@@ -106,6 +118,23 @@ campaign language and accepts an audience and tone:
   "tone": "informative"
 }
 ```
+
+Marketing campaigns accept `{}` to use the stored target audience. An explicit
+`audience` overrides it for that draft. Remove pasted credentials such as API
+keys, authorization tokens, and private keys from campaign text before generating.
+The API rejects obvious credential patterns with HTTP 422 before sending the
+input to the provider or saving a generation. Pattern matching can miss secrets.
+
+Store approved prices, percentage promotions, and explicit guarantee terms in the
+offer summary. The API rejects drafts with certain unsupported amounts,
+promotions, and guarantees with HTTP 502 and saves no packages from that request.
+The checks cover common EGP and USD formats and selected English and Arabic
+phrases. They cannot verify all claims, phrasing, or offer conditions. Human
+review is still required before publication.
+
+Structured budget fields stay out of marketing prompts and snapshots. Budget
+details pasted into free text may still be sent to the provider or saved in a
+snapshot. Keep internal budgets out of the brief and other generation inputs.
 
 Provider failures return controlled errors. A lost client connection does not
 prove server cancellation; inspect saved history before submitting again.
@@ -125,10 +154,78 @@ npm run lint
 npm run build
 ```
 
-The backend has 165 passing tests. Live diagnostics are opt-in: add `--live` to
+Live diagnostics are opt-in. Add `--live` to
 `scripts.check_generation_api` for one provider request or run
 `scripts.evaluate_text_generation --live` for three. Quotas/charges depend on API
 project billing. Diagnostic rows are rolled back; captured IDs are not persistent.
+
+### Isolated PostgreSQL integration tests
+
+The default pytest run uses SQLite. The optional PostgreSQL mode runs the same
+nine marketing scenarios against a pre-created local database named
+`marketpilot_integration_test`. Each test upgrades its own uniquely named
+schema through Alembic, checks the revision, and removes that schema afterward.
+The tests use a fake text provider.
+
+For one-time setup in PowerShell, run the following against the existing
+`govreach-postgres` container. The read-only catalog check confirms the
+maintenance connection, the development database, and the absence of the test
+database before creation.
+
+```powershell
+$marketPilotDatabaseCheck = docker exec govreach-postgres psql -X -w -U govreach -d postgres -v ON_ERROR_STOP=1 -At -c "SELECT current_database(), current_user, EXISTS (SELECT FROM pg_database WHERE datname = 'govreach'), EXISTS (SELECT FROM pg_database WHERE datname = 'marketpilot_integration_test');"
+if ($LASTEXITCODE -ne 0 -or $marketPilotDatabaseCheck -ne 'postgres|govreach|t|f') {
+    throw "Database setup stopped. Confirm the connection and check for an existing test database."
+}
+docker exec govreach-postgres psql -X -w -U govreach -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE marketpilot_integration_test WITH OWNER govreach TEMPLATE template0;"
+if ($LASTEXITCODE -ne 0) { throw "Could not create the dedicated test database." }
+```
+
+If the name already exists, stop the setup and confirm that it belongs to this
+test workflow before using it. The test runner never creates or drops the
+database itself.
+
+From `backend`, supply the local PostgreSQL login password when prompted.
+The URL template is
+`postgresql+psycopg://govreach:<encoded-password>@127.0.0.1:5432/marketpilot_integration_test`.
+
+```powershell
+try {
+    $marketPilotTestPassword = Read-Host 'Local PostgreSQL password for govreach' -AsSecureString
+    $marketPilotTestEncoded = [Uri]::EscapeDataString([Net.NetworkCredential]::new('', $marketPilotTestPassword).Password)
+    $env:MARKETPILOT_TEST_DATABASE_URL = "postgresql+psycopg://govreach:${marketPilotTestEncoded}@127.0.0.1:5432/marketpilot_integration_test"
+    .venv/Scripts/python.exe -m pytest -q --postgres-integration tests/test_marketing_integration.py
+} finally {
+    Remove-Item Env:MARKETPILOT_TEST_DATABASE_URL -ErrorAction SilentlyContinue
+    Remove-Variable marketPilotTestPassword, marketPilotTestEncoded -ErrorAction SilentlyContinue
+}
+```
+
+PostgreSQL mode requires the separate test URL with a loopback host, explicit
+user and port, and the exact test database name. Query parameters and other
+database names are rejected. The workflow verifies the database and schema on
+the server before migrating and scopes cleanup to the schema created by the test.
+
+### Browser end-to-end tests
+
+Install the frontend dev dependencies with `npm ci` from `frontend`. The suite
+uses Playwright with an installed Google Chrome browser. To use Microsoft Edge,
+set `$env:MARKETPILOT_E2E_BROWSER = 'msedge'` for the run.
+
+With the dedicated PostgreSQL database prepared, use the PowerShell block above
+to set the test URL. Replace its pytest command with this command from `backend`.
+
+```powershell
+.venv/Scripts/python.exe -m pytest -q -s --postgres-integration tests/browser_e2e.py
+```
+
+The harness builds React into a temporary directory and serves it with the real
+FastAPI routes on a random loopback port. It verifies a fresh migrated test
+schema and a server-side fake provider before Playwright proceeds. Browser
+requests to other origins are blocked. The race test delays delivery of real API
+responses, and the fixture shuts down the server and removes its schema after
+the run. Browser results and build artifacts are written under pytest's temporary
+directory.
 
 ## Evaluation and limitations
 

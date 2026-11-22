@@ -11,11 +11,18 @@ GenerationTone = Literal["informative", "encouraging", "formal"]
 OutputLanguage = Literal["arabic", "english"]
 
 
-class TextGenerationRequest(BaseModel):
+class CampaignAudienceGenerationRequest(BaseModel):
+    """Use the target audience already stored on a marketing campaign."""
+
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
-    audience: str = Field(min_length=1, max_length=300)
     tone: GenerationTone = "informative"
+
+
+class TextGenerationRequest(CampaignAudienceGenerationRequest):
+    """Supply an audience for legacy campaigns or override a marketing audience."""
+
+    audience: str = Field(min_length=1, max_length=300)
 
 
 class TextPackage(BaseModel):

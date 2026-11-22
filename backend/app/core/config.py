@@ -9,7 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    app_name: str = "GovReach AI"
+    app_name: str = "MarketPilot AI"
     app_env: str = "development"
     app_debug: bool = True
 

@@ -7,11 +7,11 @@ from app.api.v1.generation import router as generation_router
 
 
 app = FastAPI(
-    title="GovReach AI API",
+    title="MarketPilot AI API",
     version="0.2.0",
     description=(
-        "Generative AI platform for Egyptian government "
-        "awareness campaigns."
+        "AI marketing platform prototype for small businesses. "
+        "The current workflow generates bilingual traffic-safety campaign drafts."
     ),
 )
 
@@ -30,7 +30,7 @@ app.include_router(generation_router, prefix="/api/v1")
 @app.get("/")
 def root():
     return {
-        "message": "GovReach AI API is running"
+        "message": "MarketPilot AI API is running"
     }
 
 

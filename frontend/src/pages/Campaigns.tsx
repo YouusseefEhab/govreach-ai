@@ -4,12 +4,10 @@ import { Link } from 'react-router-dom'
 import { deleteCampaign, listCampaigns } from '../services/api'
 import { useLanguage } from '../hooks/useLanguage'
 import StatusBadge from '../components/StatusBadge'
-import type { Campaign, CampaignLanguage } from '../types/api'
+import type { Campaign } from '../types/api'
+import { campaignLanguageLabel, campaignTypeLabel } from '../utils/campaignForm'
 
 const LIMIT = 10
-
-const langLabel = (l: CampaignLanguage, t: (k: string) => string) =>
-  l === 'both' ? t('lang.both') : l === 'arabic' ? t('lang.arabic') : t('lang.english')
 
 export default function Campaigns() {
   const { t, lang } = useLanguage()
@@ -49,6 +47,7 @@ export default function Campaigns() {
         </Link>
       </div>
 
+      {del.isError && <p className="alert alert-error" role="alert">{t('campaign.errDelete')}</p>}
       <div className="card">
         {isLoading ? (
           <div className="state">
@@ -81,13 +80,17 @@ export default function Campaigns() {
             <tbody>
               {data.map((c) => (
                 <tr key={c.id}>
-                  <td>
-                    <div className="row-title">{c.title}</div>
+                  <td className="campaign-summary">
+                    <div className="row-title"><bdi>{c.title}</bdi></div>
+                    <div className="campaign-list-meta">
+                      <span className="badge badge-neutral">{t(campaignTypeLabel(c))}</span>
+                      {c.campaign_type === 'marketing' && c.business_name && <bdi>{c.business_name}</bdi>}
+                    </div>
                     <div className="muted" style={{ fontSize: 13 }}>
-                      {c.objective}
+                      <bdi>{c.objective}</bdi>
                     </div>
                   </td>
-                  <td>{langLabel(c.language, t)}</td>
+                  <td>{campaignLanguageLabel(c.language, t)}</td>
                   <td>
                     <StatusBadge status={c.status} />
                   </td>
