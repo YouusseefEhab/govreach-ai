@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+from uuid import UUID
 
 import pytest
 from alembic import command
@@ -276,6 +277,11 @@ def test_pasted_credentials_leave_existing_history_intact(
 
 @pytest.mark.parametrize("test_engine", [True], indirect=True, ids=["pre-marketing-rows"])
 def test_migrated_null_type_campaigns_keep_legacy_generation(client, test_engine, provider):
+    with Session(test_engine) as session, session.begin():
+        for campaign in session.scalars(select(Campaign)):
+            assert campaign.business_id is None
+            # Simulate a verified assignment in the fixture so legacy generation is still exercised.
+            campaign.business_id = UUID(client.headers["X-Business-ID"])
     for campaign_id, domain in ((1, "traffic_safety"), (2, "marketing")):
         url = f"{CAMPAIGNS}/{campaign_id}"
         fetched = client.get(url)

@@ -50,12 +50,13 @@ def get_current_session(
     origin: Annotated[str | None, Header()] = None,
 ) -> AuthContext:
     _require_https(request)
-    if origin is not None:
-        _require_trusted_origin(request, origin)
     try:
-        return resolve_session(db, token)
+        session = resolve_session(db, token)
     except InvalidSession:
         raise HTTPException(401, "Authentication required.") from None
+    if origin is not None:
+        _require_trusted_origin(request, origin)
+    return session
 
 
 CurrentSession = Annotated[AuthContext, Depends(get_current_session)]

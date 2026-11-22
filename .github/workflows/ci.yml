@@ -59,6 +59,20 @@ jobs:
           python -m alembic check
       - name: Verify API with a fake provider
         run: python -m scripts.check_generation_api
+      - name: Run isolated PostgreSQL authorization tests
+        env:
+          MARKETPILOT_TEST_DATABASE_URL: postgresql+psycopg://govreach_test:test_only_password@127.0.0.1:5432/marketpilot_integration_test
+        run: |
+          python - <<'PY'
+          import os
+          from sqlalchemy import create_engine
+
+          with create_engine(os.environ["DATABASE_URL"], isolation_level="AUTOCOMMIT").connect() as connection:
+              if connection.exec_driver_sql("SELECT current_database()").scalar_one() != "govreach_test":
+                  raise RuntimeError("Expected the CI-only PostgreSQL database")
+              connection.exec_driver_sql("CREATE DATABASE marketpilot_integration_test")
+          PY
+          python -m pytest -q --postgres-integration tests/test_tenant_authorization.py tests/test_marketing_integration.py
 
   frontend:
     name: Frontend lint and production build

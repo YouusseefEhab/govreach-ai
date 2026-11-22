@@ -10,11 +10,12 @@ from app.repositories import campaign as campaign_repository
 from app.repositories import generated_content as content_repository
 from app.schemas.generation import (
     CampaignAudienceGenerationRequest,
-    ContentUpdate,
     TextGenerationRequest,
     TextPackage,
 )
+from app.services.auth import recheck_locked_session
 from app.services.marketing_validation import validate_marketing_drafts, validate_marketing_inputs
+from app.services.tenant import TenantContext, get_tenant, require_role
 from app.services.traffic_sources import select_sources
 
 
@@ -80,17 +81,16 @@ def _marketing_inputs(campaign: Campaign, request: TextGenerationRequest, langua
 
 def generate_text(
     db: Session,
-    campaign_id: int,
+    tenant: TenantContext,
+    campaign: Campaign,
     request: TextGenerationRequest | CampaignAudienceGenerationRequest,
     provider: TextProvider,
 ):
-    campaign = campaign_repository.get_campaign(db, campaign_id)
-    is_marketing = campaign is not None and campaign.campaign_type == "marketing"
+    campaign_id = campaign.id
+    is_marketing = campaign.campaign_type == "marketing"
     if not isinstance(request, TextGenerationRequest) and not is_marketing:
-        # Restore the original body validation error before reporting lookup or domain errors.
+        # Accessible legacy campaigns still require an explicit audience.
         request = TextGenerationRequest.model_validate(request.model_dump(exclude_unset=True))
-    if campaign is None:
-        raise GenerationError(404, "Campaign not found")
     if not is_marketing and campaign.domain != "traffic_safety":
         raise GenerationError(422, "Text generation currently supports traffic_safety only")
     if not isinstance(request, TextGenerationRequest):
@@ -124,6 +124,10 @@ def generate_text(
             "tone": request.tone, "languages": sorted(languages),
             "source_material": source_references,
         }
+    recheck_locked_session(db, tenant.user_id, tenant.session_id)
+    # Retain the loaded campaign snapshot without holding a connection or locks during generation.
+    db.expunge(campaign)
+    db.rollback()
     packages = provider.generate(system_instruction, json.dumps(inputs, ensure_ascii=False), languages)
     # Recheck the adapter boundary before persistence, including fake providers.
     try:
@@ -140,6 +144,11 @@ def generate_text(
         if is_marketing else None
     )
     try:
+        current_tenant = get_tenant(db, tenant.business_id, tenant.user_id, tenant.session_id, for_write=True)
+        if campaign_repository.get_campaign_for_update(db, tenant.business_id, campaign_id) is None:
+            raise GenerationError(404, "Campaign not found")
+        require_role(current_tenant, "editor")
+        recheck_locked_session(db, current_tenant.user_id, current_tenant.session_id)
         rows = content_repository.save_text_generation(
             db, campaign, request, packages, provider=provider_name,
             model=model, prompt_version=prompt_version, source_references=source_references,
@@ -148,28 +157,4 @@ def generate_text(
     except SQLAlchemyError:
         db.rollback()
         raise GenerationError(503, "Generated content could not be saved; check database availability") from None
-    return {"campaign_id": campaign.id, "contents": rows}
-
-
-def list_contents(db: Session, campaign_id: int, skip: int = 0, limit: int = 20):
-    if campaign_repository.get_campaign(db, campaign_id) is None:
-        raise GenerationError(404, "Campaign not found")
-    return content_repository.list_campaign_contents(db, campaign_id, skip, limit)
-
-
-def get_content(db: Session, content_id: int):
-    content = content_repository.get_content(db, content_id)
-    if content is None:
-        raise GenerationError(404, "Generated content not found")
-    return content
-
-
-def update_content(db: Session, content_id: int, data: ContentUpdate):
-    try:
-        content = content_repository.get_content_for_update(db, content_id)
-        if content is None:
-            raise GenerationError(404, "Generated content not found")
-        return content_repository.update_content(db, content, data)
-    except SQLAlchemyError:
-        db.rollback()
-        raise GenerationError(503, "Content update could not be saved; check database availability") from None
+    return {"campaign_id": campaign_id, "contents": rows}

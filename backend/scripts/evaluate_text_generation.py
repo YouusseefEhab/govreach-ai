@@ -7,17 +7,15 @@ from pathlib import Path
 import sys
 from time import perf_counter
 
-from fastapi.testclient import TestClient
-from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import engine, get_db
 from app.main import app
-from app.models import Campaign, GeneratedContent
 from app.providers.gemini import get_text_provider
 from app.schemas.generation import SavedTextGenerationResponse
-from scripts.check_generation_api import FakeProvider
+from scripts.check_generation_api import FakeProvider, row_counts
+from scripts.diagnostic_auth import owner_client
 
 
 EVALUATION_DIR = Path(__file__).resolve().parents[1] / "evaluation"
@@ -56,18 +54,20 @@ def evaluate(live=False):
     previous = app.dependency_overrides.copy()
     with engine.connect() as connection:
         outer = connection.begin()
-        initial_counts = [connection.execute(select(func.count()).select_from(model)).scalar()
-                          for model in (Campaign, GeneratedContent)]
+        initial_counts = row_counts(connection)
+
+        def session_factory():
+            return Session(bind=connection, join_transaction_mode="create_savepoint")
 
         def diagnostic_db():
-            with Session(bind=connection, join_transaction_mode="create_savepoint") as db:
+            with session_factory() as db:
                 yield db
 
         app.dependency_overrides[get_db] = diagnostic_db
         if not live:
             app.dependency_overrides[get_text_provider] = lambda: FakeProvider()
         try:
-            with TestClient(app) as client:
+            with owner_client(session_factory) as client:
                 for case in cases:
                     entry = {"case_id": case["case_id"], "inputs": case, "technical_checks": "pending"}
                     report["cases"].append(entry)
@@ -99,8 +99,7 @@ def evaluate(live=False):
             app.dependency_overrides.clear()
             app.dependency_overrides.update(previous)
             outer.rollback()
-            final_counts = [connection.execute(select(func.count()).select_from(model)).scalar()
-                            for model in (Campaign, GeneratedContent)]
+            final_counts = row_counts(connection)
             report["database_cleanup"] = "rolled back; row counts unchanged" if initial_counts == final_counts else "rolled back; counts changed during evaluation"
             save_report()
     print("Evaluation capture:", output_path, flush=True)

@@ -19,8 +19,9 @@ imply government endorsement.
 
 The React frontend provides an English/Arabic interface with RTL layout in Arabic.
 It supports campaign creation and listing, text generation, history, draft editing,
-and review. The backend also has a private session API for testing. Tenant
-enforcement, images, video, publishing, and cloud deployment are future milestones.
+and review. The backend requires a signed-in tenant for campaign operations.
+The current frontend needs the sign-in and business selection work planned for
+Phase 2A.6 before it can use those operations.
 
 ## Legacy GovReach identifiers
 
@@ -139,21 +140,19 @@ snapshot. Keep internal budgets out of the brief and other generation inputs.
 Provider failures return controlled errors. A lost client connection does not
 prove server cancellation; inspect saved history before submitting again.
 
-### Private authentication API (Phase 2A.3)
+### Authentication and tenant access
 
-**Keep this intermediate build private. Campaign, generation, and content API
-routes remain accessible without authentication. Tenant enforcement is planned
-for Phase 2A.4.** Accounts are created only by isolated test fixtures in this
-phase. Public provisioning, verification, recovery, and login rate limiting
-are outside this foundation.
+**Keep this intermediate build private.** Account provisioning is limited to
+test fixtures and rollback-only diagnostics. Public provisioning, verification,
+recovery, and login and generation rate limits remain deferred.
 
 For isolated auth testing, set `AUTH_TRUSTED_ORIGIN` to the exact HTTPS origin
 serving the API client, such as `https://localhost:8443`, without a trailing
 slash. Login stays disabled while this setting is unset. Use a same-origin HTTPS
 deployment or local TLS proxy. If TLS terminates at a proxy, configure the ASGI
 server to accept the forwarded scheme only from that trusted proxy. The auth
-routes require HTTPS, including on loopback. The existing frontend CORS
-configuration applies to the Phase 1 UI.
+and tenant routes require HTTPS, including on loopback. Existing frontend CORS
+settings are intended for local development.
 
 | Method | Endpoint | Contract |
 | --- | --- | --- |
@@ -167,6 +166,33 @@ limits. The browser keeps the session credential in the cookie. A future UI
 should keep the CSRF token in memory. Keep cookies, auth headers, and login
 bodies out of proxy logs and tracing. Routine cleanup of expired and revoked
 session rows is deferred.
+
+| Method | Endpoint | Access |
+| --- | --- | --- |
+| GET | `/api/v1/businesses` | List the signed-in user's businesses and roles. |
+| POST | `/api/v1/businesses` | Create a business and its first owner membership in one transaction. Display names can be shared by different businesses. |
+| GET | `/api/v1/businesses/{business_id}` | Read a profile as a member. |
+| PATCH | `/api/v1/businesses/{business_id}` | Update a profile as an owner. |
+
+Send `X-Business-ID` with a business UUID on every campaign and content request.
+The server verifies membership and assigns new campaign ownership. Send the
+trusted `Origin` and session-bound `X-CSRF-Token` with business, campaign, and
+content writes. Viewers can read. Editors can also create and edit campaigns,
+generate content, and edit text, which returns the package to draft. Owners can
+also delete campaigns and explicitly change review status.
+
+The API returns `401` for a missing or invalid session, `400` for a missing or
+invalid business selector, `403` for insufficient permission or failed Origin
+and CSRF checks, and `404` for inaccessible or missing resources. Historical
+campaigns with no business are quarantined, along with their generated content.
+Private responses carry `Cache-Control: no-store`.
+
+Generation releases its database transaction during the provider call and then
+rechecks access before saving. Revocation can block persistence, while a request
+already sent to the provider can still consume quota. Before deploying, replace
+all Phase 1 API workers and block access to their old ingress paths. An older
+binary exposes unscoped routes and must stay behind a private boundary during
+rollback. Phase 2A.4 uses the existing Alembic head `a2159d38e4c6`.
 
 ## Verification
 
@@ -236,6 +262,10 @@ database names are rejected. The workflow verifies the database and schema on
 the server before migrating and scopes cleanup to the schema created by the test.
 
 ### Browser end-to-end tests
+
+The Phase 1 browser suite targets the old frontend flow. Its campaign scenarios
+require the Phase 2A.6 authentication and business selection UI before they can
+run against the protected API. Use the backend authorization tests for this phase.
 
 Install the frontend dev dependencies with `npm ci` from `frontend`. The suite
 uses Playwright with an installed Google Chrome browser. To use Microsoft Edge,

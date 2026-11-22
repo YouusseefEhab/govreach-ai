@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 from alembic.config import Config
-from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
@@ -23,13 +22,14 @@ from app.core.database import Base, get_db
 from app.main import app
 from app.providers.gemini import get_text_provider
 from app.schemas.generation import TextPackage
+from scripts.diagnostic_auth import owner_client
 
 
 def pytest_addoption(parser):
     parser.addoption(
         "--postgres-integration",
         action="store_true",
-        help="Run the marketing integration scenarios against the dedicated PostgreSQL test database.",
+        help="Run integration scenarios against the dedicated PostgreSQL test database.",
     )
 
 
@@ -158,7 +158,7 @@ def client(test_engine):
     previous_overrides = app.dependency_overrides.copy()
     app.dependency_overrides[get_db] = test_db
     try:
-        with TestClient(app) as test_client:
+        with owner_client(lambda: Session(test_engine)) as test_client:
             yield test_client
     finally:
         app.dependency_overrides.clear()

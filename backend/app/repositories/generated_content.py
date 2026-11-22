@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -75,12 +75,35 @@ def save_text_generation(
     return rows
 
 
-def get_content(db: Session, content_id: int) -> GeneratedContent | None:
-    return db.get(GeneratedContent, content_id)
+def _business_contents(business_id: UUID):
+    return select(GeneratedContent).join(Campaign, GeneratedContent.campaign_id == Campaign.id).where(
+        Campaign.business_id == business_id
+    )
 
 
-def get_content_for_update(db: Session, content_id: int) -> GeneratedContent | None:
-    return db.scalar(select(GeneratedContent).where(GeneratedContent.id == content_id).with_for_update())
+def lock_campaign_contents(db: Session, business_id: UUID, campaign_id: int) -> None:
+    # Deletion already holds the campaign lock. Acquire child locks before its expiry check and cascade.
+    statement = (
+        select(GeneratedContent.id).join(Campaign, GeneratedContent.campaign_id == Campaign.id)
+        .where(Campaign.business_id == business_id, GeneratedContent.campaign_id == campaign_id)
+        .order_by(GeneratedContent.id).with_for_update(of=GeneratedContent)
+    )
+    db.execute(statement).close()
+
+
+def get_content(db: Session, business_id: UUID, content_id: int, *, for_update=False) -> GeneratedContent | None:
+    statement = _business_contents(business_id).where(GeneratedContent.id == content_id)
+    if for_update:
+        # Lock the parent first, matching campaign deletion's lock order.
+        parent = (
+            select(Campaign.id).join(GeneratedContent, GeneratedContent.campaign_id == Campaign.id)
+            .where(Campaign.business_id == business_id, GeneratedContent.id == content_id)
+            .with_for_update(read=True, of=Campaign)
+        )
+        if db.scalar(parent) is None:
+            return None
+        statement = statement.with_for_update(of=GeneratedContent).execution_options(populate_existing=True)
+    return db.scalar(statement)
 
 
 def update_content(db: Session, content: GeneratedContent, data: ContentUpdate) -> GeneratedContent:
@@ -101,10 +124,10 @@ def update_content(db: Session, content: GeneratedContent, data: ContentUpdate) 
 
 
 def list_campaign_contents(
-    db: Session, campaign_id: int, skip: int = 0, limit: int = 20,
+    db: Session, business_id: UUID, campaign_id: int, skip: int = 0, limit: int = 20,
 ) -> list[GeneratedContent]:
     statement = (
-        select(GeneratedContent)
+        _business_contents(business_id)
         .where(GeneratedContent.campaign_id == campaign_id)
         .order_by(GeneratedContent.created_at.desc(), GeneratedContent.id.desc())
         .offset(skip)

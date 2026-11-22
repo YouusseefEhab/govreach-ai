@@ -6,6 +6,7 @@ from typing import Annotated, Literal
 from pydantic import (
     AfterValidator,
     BaseModel,
+    BeforeValidator,
     ConfigDict,
     Discriminator,
     Field,
@@ -22,6 +23,19 @@ BusinessName = Annotated[str, Field(min_length=1, max_length=120)]
 OfferSummary = Annotated[str, Field(min_length=1, max_length=1000)]
 TargetAudience = Annotated[str, Field(min_length=1, max_length=300)]
 CampaignBrief = Annotated[str, Field(max_length=3000)]
+
+_OWNERSHIP_FIELDS = {
+    "business", "businessid", "tenant", "tenantid", "role", "membership", "membershiprole",
+    "owner", "ownerid", "owneruserid", "ownership", "userid", "createdby", "createdbyuserid",
+}
+
+
+def _reject_ownership(data):
+    if isinstance(data, dict) and any(
+        key.replace("_", "").replace("-", "").casefold() in _OWNERSHIP_FIELDS for key in data
+    ):
+        raise ValueError("Campaign business, ownership, and membership role are assigned by the server")
+    return data
 
 
 def _distinct_channels(channels: list[MarketingChannel]) -> list[MarketingChannel]:
@@ -93,6 +107,10 @@ class MarketingCampaignUpdate(CampaignUpdate):
     budget: CampaignBudget | None = None
     channels: MarketingChannels | None = None
     brief: CampaignBrief | None = None
+
+
+CampaignCreateRequest = Annotated[CampaignCreate | MarketingCampaignCreate, BeforeValidator(_reject_ownership)]
+CampaignUpdateRequest = Annotated[MarketingCampaignUpdate | CampaignUpdate, BeforeValidator(_reject_ownership)]
 
 
 class CampaignResponse(BaseModel):

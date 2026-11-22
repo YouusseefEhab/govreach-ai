@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
-from app.models.generated_content import GeneratedContent
+from app.models import Business, GeneratedContent
 from app.repositories import campaign as campaigns
 from app.repositories import generated_content as contents
 from app.schemas.campaign import CampaignCreate, CampaignUpdate
@@ -19,7 +19,10 @@ def package(language):
 
 
 def create_campaign(db, language="both"):
-    return campaigns.create_campaign(db, CampaignCreate(
+    business = Business(display_name="Content repository test shop")
+    db.add(business)
+    db.flush()
+    return campaigns.create_campaign(db, business.id, CampaignCreate(
         title="Seat belt awareness", objective="Encourage seat belt use", language=language,
     ))
 
@@ -54,7 +57,7 @@ def test_save_complete_generation(db, language):
         assert row.content == package(row.language).model_dump()
         assert row.source_references == []
         assert row.input_snapshot["arabic_dialect"] == "egyptian"
-        assert contents.get_content(db, row.id).id == row.id
+        assert contents.get_content(db, campaign.business_id, row.id).id == row.id
 
 
 def test_history_and_snapshot_survive_campaign_edits(db):
@@ -64,12 +67,12 @@ def test_history_and_snapshot_survive_campaign_edits(db):
     campaigns.update_campaign(db, campaign, CampaignUpdate(title="Updated title"))
     second = save(db, campaign)
     assert first[0].generation_id != second[0].generation_id
-    assert contents.get_content(db, first[0].id).input_snapshot == snapshot
+    assert contents.get_content(db, campaign.business_id, first[0].id).input_snapshot == snapshot
     assert second[0].input_snapshot["title"] == "Updated title"
     assert count(db) == 4
-    all_rows = contents.list_campaign_contents(db, campaign.id)
+    all_rows = contents.list_campaign_contents(db, campaign.business_id, campaign.id)
     assert [row.id for row in all_rows[:2]] == [second[1].id, second[0].id]
-    assert contents.list_campaign_contents(db, campaign.id, skip=1, limit=1)[0].id == all_rows[1].id
+    assert contents.list_campaign_contents(db, campaign.business_id, campaign.id, skip=1, limit=1)[0].id == all_rows[1].id
 
 
 @pytest.mark.parametrize("languages", [[], ["arabic"], ["english"], ["both"], ["arabic", "english", "french"]])
@@ -95,7 +98,7 @@ def test_database_failure_rolls_back_both_variants_and_session_recovers(db):
     with pytest.raises(IntegrityError):
         save(db, campaign, model=None)
     assert count(db) == 2
-    assert contents.get_content(db, original[0].id) is not None
+    assert contents.get_content(db, campaign.business_id, original[0].id) is not None
     assert len(save(db, campaign)) == 2
     assert count(db) == 4
 
@@ -105,20 +108,22 @@ def test_campaign_delete_cascades_only_its_contents(db):
     second = create_campaign(db)
     save(db, first)
     kept = save(db, second)
-    first_id = first.id
+    first_id, first_business_id = first.id, first.business_id
     campaigns.delete_campaign(db, first)
     db.expire_all()
-    assert contents.list_campaign_contents(db, first_id) == []
-    assert {row.id for row in contents.list_campaign_contents(db, second.id)} == {row.id for row in kept}
+    assert contents.list_campaign_contents(db, first_business_id, first_id) == []
+    assert {row.id for row in contents.list_campaign_contents(db, second.business_id, second.id)} == {row.id for row in kept}
     assert count(db) == 2
 
 
 def test_no_cross_campaign_results_or_missing_content(db):
     campaign = create_campaign(db)
-    save(db, campaign)
+    rows = save(db, campaign)
     other = create_campaign(db)
-    assert contents.list_campaign_contents(db, other.id) == []
-    assert contents.get_content(db, 999999) is None
+    assert contents.list_campaign_contents(db, other.business_id, other.id) == []
+    assert contents.list_campaign_contents(db, other.business_id, campaign.id) == []
+    assert contents.get_content(db, other.business_id, rows[0].id) is None
+    assert contents.get_content(db, campaign.business_id, 999999) is None
 
 
 def test_generation_language_uniqueness_in_database(db):

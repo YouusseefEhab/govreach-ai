@@ -1,9 +1,11 @@
 
 from decimal import Decimal
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.models.business import Business
 from app.models.campaign import Campaign
 from app.schemas.campaign import CampaignCreate, CampaignUpdate, MarketingCampaignCreate
 
@@ -16,22 +18,29 @@ def _campaign_columns(values: dict) -> dict:
     return values
 
 
-def create_campaign(db: Session, data: CampaignCreate | MarketingCampaignCreate) -> Campaign:
-    campaign = Campaign(**_campaign_columns(data.model_dump()))
+def lock_business_reference(db: Session, business_id: UUID) -> bool:
+    # Acquire the lock that the campaign INSERT's foreign key will need before checking expiry.
+    return db.scalar(
+        select(Business.id).where(Business.id == business_id).with_for_update(read=True, key_share=True)
+    ) is not None
+
+
+def create_campaign(db: Session, business_id: UUID, data: CampaignCreate | MarketingCampaignCreate) -> Campaign:
+    campaign = Campaign(business_id=business_id, **_campaign_columns(data.model_dump()))
     db.add(campaign)
     db.commit()
     db.refresh(campaign)
     return campaign
 
 
-def get_campaign(db: Session, campaign_id: int) -> Campaign | None:
-    return db.get(Campaign, campaign_id)
+def get_campaign(db: Session, business_id: UUID, campaign_id: int) -> Campaign | None:
+    return db.scalar(select(Campaign).where(Campaign.business_id == business_id, Campaign.id == campaign_id))
 
 
-def get_campaign_for_update(db: Session, campaign_id: int) -> Campaign | None:
+def get_campaign_for_update(db: Session, business_id: UUID, campaign_id: int) -> Campaign | None:
     statement = (
         select(Campaign)
-        .where(Campaign.id == campaign_id)
+        .where(Campaign.business_id == business_id, Campaign.id == campaign_id)
         .with_for_update()
         .execution_options(populate_existing=True)
     )
@@ -40,11 +49,13 @@ def get_campaign_for_update(db: Session, campaign_id: int) -> Campaign | None:
 
 def list_campaigns(
     db: Session,
+    business_id: UUID,
     skip: int = 0,
     limit: int = 20,
 ) -> list[Campaign]:
     statement = (
         select(Campaign)
+        .where(Campaign.business_id == business_id)
         .order_by(Campaign.created_at.desc(), Campaign.id.desc())
         .offset(skip)
         .limit(limit)

@@ -247,13 +247,17 @@ def test_bad_request_never_calls_provider(client, provider, body, create_campaig
 
 @pytest.mark.parametrize("domain", ["traffic_safety", "marketing", None], ids=["legacy", "legacy-domain", "unknown"])
 @pytest.mark.parametrize("body", [{}, {"tone": "formal"}])
-def test_omitted_audience_for_legacy_or_unknown_campaign_keeps_baseline_error(client, provider, domain, body):
+def test_omitted_audience_for_legacy_requires_access_first(client, provider, domain, body):
     campaign_id = campaign(client, domain=domain) if domain is not None else 999999
     response = client.post(f"/api/v1/campaigns/{campaign_id}/generate-text", json=body)
-    assert response.status_code == 422
-    assert response.json() == {"detail": [{
-        "type": "missing", "loc": ["body", "audience"], "msg": "Field required", "input": body,
-    }]}
+    if domain is None:
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Campaign not found"}
+    else:
+        assert response.status_code == 422
+        assert response.json() == {"detail": [{
+            "type": "missing", "loc": ["body", "audience"], "msg": "Field required", "input": body,
+        }]}
     assert provider.calls == []
 
 

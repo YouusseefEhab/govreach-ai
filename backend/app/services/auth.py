@@ -111,13 +111,48 @@ def resolve_session(db: Session, token: str | None) -> AuthContext:
         raise InvalidSession(SessionFailure.UNKNOWN)
 
     session, user = row
-    if session.revoked_at is not None:
-        raise InvalidSession(SessionFailure.REVOKED)
     if user.disabled_at is not None:
         raise InvalidSession(SessionFailure.DISABLED)
+    _require_live_session(session)
+    return _context(session, user, token)
+
+
+def _require_live_session(session: AuthSession) -> None:
+    if session.revoked_at is not None:
+        raise InvalidSession(SessionFailure.REVOKED)
     if utc_now() >= min(_as_utc(session.idle_expires_at), _as_utc(session.absolute_expires_at)):
         raise InvalidSession(SessionFailure.EXPIRED)
-    return _context(session, user, token)
+
+
+def lock_live_session(db: Session, user_id: UUID, session_id: UUID, *, exclusive=False) -> AuthSession:
+    # Protect the user and session until the caller commits or rolls back its write.
+    user = db.scalar(select(User.id).where(User.id == user_id, User.disabled_at.is_(None)).with_for_update(read=True))
+    if user is None:
+        raise InvalidSession(SessionFailure.DISABLED)
+    session = db.scalar(
+        select(AuthSession).where(AuthSession.id == session_id, AuthSession.user_id == user_id)
+        .with_for_update(read=not exclusive).execution_options(populate_existing=True)
+    )
+    if session is None:
+        raise InvalidSession(SessionFailure.UNKNOWN)
+    _require_live_session(session)
+    return session
+
+
+def recheck_locked_session(db: Session, user_id: UUID, session_id: UUID) -> None:
+    """Recheck after resource lock waits while the earlier user/session locks are still held."""
+    row = db.execute(
+        select(AuthSession, User.disabled_at).join(User, User.id == AuthSession.user_id)
+        .where(AuthSession.id == session_id, AuthSession.user_id == user_id)
+        .execution_options(populate_existing=True)
+    ).one_or_none()
+    if row is None:
+        raise InvalidSession(SessionFailure.UNKNOWN)
+    session, disabled_at = row
+    if disabled_at is not None:
+        raise InvalidSession(SessionFailure.DISABLED)
+    # Sample wall time after the read and all row-lock waits.
+    _require_live_session(session)
 
 
 def _write_live_session(db: Session, session: AuthContext, now: datetime, **values) -> None:
@@ -141,8 +176,9 @@ def _write_live_session(db: Session, session: AuthContext, now: datetime, **valu
 
 
 def refresh_session(db: Session, session: AuthContext) -> None:
+    locked_session = lock_live_session(db, session.user.id, session.session_id, exclusive=True)
     now = utc_now()
-    idle_until = min(now + timedelta(seconds=settings.auth_idle_timeout_seconds), session.absolute_expires_at)
+    idle_until = min(now + timedelta(seconds=settings.auth_idle_timeout_seconds), _as_utc(locked_session.absolute_expires_at))
     _write_live_session(db, session, now, idle_expires_at=case(
         (AuthSession.idle_expires_at < idle_until, idle_until),
         else_=AuthSession.idle_expires_at,
@@ -150,5 +186,6 @@ def refresh_session(db: Session, session: AuthContext) -> None:
 
 
 def revoke_session(db: Session, session: AuthContext) -> None:
+    lock_live_session(db, session.user.id, session.session_id, exclusive=True)
     now = utc_now()
     _write_live_session(db, session, now, revoked_at=now)

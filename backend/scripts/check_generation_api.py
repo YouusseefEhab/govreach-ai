@@ -3,16 +3,16 @@
 import argparse
 import sys
 
-from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import engine, get_db
 from app.main import app
-from app.models import Campaign, GeneratedContent
+from app.models import AuthSession, Business, Campaign, GeneratedContent, Membership, User
 from app.providers.gemini import get_text_provider
 from app.schemas.generation import TextPackage
+from scripts.diagnostic_auth import owner_client
 
 
 class FakeProvider:
@@ -30,7 +30,7 @@ class FakeProvider:
 
 def row_counts(connection):
     return tuple(connection.execute(select(func.count()).select_from(model)).scalar()
-                 for model in (Campaign, GeneratedContent))
+                 for model in (User, AuthSession, Business, Membership, Campaign, GeneratedContent))
 
 
 def check_api(live=False):
@@ -41,15 +41,18 @@ def check_api(live=False):
         outer = connection.begin()
         before = row_counts(connection)
 
+        def session_factory():
+            return Session(bind=connection, join_transaction_mode="create_savepoint")
+
         def diagnostic_db():
-            with Session(bind=connection, join_transaction_mode="create_savepoint") as session:
+            with session_factory() as session:
                 yield session
 
         app.dependency_overrides[get_db] = diagnostic_db
         if not live:
             app.dependency_overrides[get_text_provider] = lambda: FakeProvider()
         try:
-            with TestClient(app) as client:
+            with owner_client(session_factory) as client:
                 created = client.post("/api/v1/campaigns", json={
                     "title": "Seat belt API diagnostic (rolled back)",
                     "objective": "Encourage drivers and passengers to wear seat belts before every trip",

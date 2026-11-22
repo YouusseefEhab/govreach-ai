@@ -299,7 +299,7 @@ def test_validated_request_cannot_refresh_a_concurrently_revoked_session(auth_cl
         clock.return_value += timedelta(seconds=30)
         with pytest.raises(auth.InvalidSession) as error:
             auth.refresh_session(stale_db, snapshot)
-        assert error.value.reason == auth.SessionFailure.CHANGED
+        assert error.value.reason == auth.SessionFailure.REVOKED
         assert_reason(stale_db, cookie, auth.SessionFailure.REVOKED)
     assert auth_client.get(f"{AUTH}/me").status_code == 401
 
@@ -326,7 +326,7 @@ def test_auth_openapi_is_scoped_to_the_new_routes(auth_client):
     }
     assert paths[f"{AUTH}/me"]["get"]["security"] == [{"MarketPilotSession": []}]
     assert paths[f"{AUTH}/logout"]["post"]["security"] == [{"MarketPilotSession": []}]
-    assert "security" not in paths["/api/v1/campaigns"]["get"]
+    assert paths["/api/v1/campaigns"]["get"]["security"] == [{"MarketPilotSession": []}]
     assert "password_hash" not in schema["components"]["schemas"]["UserRead"]["properties"]
 
 
