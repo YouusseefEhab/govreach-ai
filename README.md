@@ -19,8 +19,8 @@ imply government endorsement.
 
 The React frontend provides an English/Arabic interface with RTL layout in Arabic.
 It supports campaign creation and listing, text generation, history, draft editing,
-and review. Images, video, authentication, publishing, and cloud deployment are
-future milestones.
+and review. The backend also has a private session API for testing. Tenant
+enforcement, images, video, publishing, and cloud deployment are future milestones.
 
 ## Legacy GovReach identifiers
 
@@ -138,6 +138,35 @@ snapshot. Keep internal budgets out of the brief and other generation inputs.
 
 Provider failures return controlled errors. A lost client connection does not
 prove server cancellation; inspect saved history before submitting again.
+
+### Private authentication API (Phase 2A.3)
+
+**Keep this intermediate build private. Campaign, generation, and content API
+routes remain accessible without authentication. Tenant enforcement is planned
+for Phase 2A.4.** Accounts are created only by isolated test fixtures in this
+phase. Public provisioning, verification, recovery, and login rate limiting
+are outside this foundation.
+
+For isolated auth testing, set `AUTH_TRUSTED_ORIGIN` to the exact HTTPS origin
+serving the API client, such as `https://localhost:8443`, without a trailing
+slash. Login stays disabled while this setting is unset. Use a same-origin HTTPS
+deployment or local TLS proxy. If TLS terminates at a proxy, configure the ASGI
+server to accept the forwarded scheme only from that trusted proxy. The auth
+routes require HTTPS, including on loopback. The existing frontend CORS
+configuration applies to the Phase 1 UI.
+
+| Method | Endpoint | Contract |
+| --- | --- | --- |
+| POST | `/api/v1/auth/login` | Send JSON `email` and `password` with the trusted `Origin` and `X-MarketPilot-Login: 1`. Returns safe user fields and a CSRF token and sets a host-only `Secure`, `HttpOnly`, `SameSite=Lax` cookie. |
+| GET | `/api/v1/auth/me` | Reads the session cookie and returns the user and CSRF token. A successful request renews the idle deadline up to the absolute deadline. |
+| POST | `/api/v1/auth/logout` | Send the trusted `Origin` and `X-CSRF-Token` with the cookie. Revokes the current session, clears its cookie, and returns `204`. |
+
+The server defaults to a 30-minute idle timeout and 12-hour absolute timeout.
+`AUTH_IDLE_TIMEOUT_SECONDS` and `AUTH_ABSOLUTE_TIMEOUT_SECONDS` configure those
+limits. The browser keeps the session credential in the cookie. A future UI
+should keep the CSRF token in memory. Keep cookies, auth headers, and login
+bodies out of proxy logs and tracing. Routine cleanup of expired and revoked
+session rows is deferred.
 
 ## Verification
 
