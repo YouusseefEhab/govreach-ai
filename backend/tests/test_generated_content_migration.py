@@ -1,15 +1,11 @@
 import json
-from pathlib import Path
 
-import pytest
 from alembic import command
 from alembic.autogenerate import compare_metadata
-from alembic.config import Config
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, event, inspect, text
+from sqlalchemy import inspect, text
 
-from app.core.config import settings
 from app.core.database import Base
 
 
@@ -17,23 +13,6 @@ INSERT_LEGACY_CAMPAIGN = text(
     "INSERT INTO campaigns (id, title, domain, objective, language, status, created_at) "
     "VALUES (:id, 'Existing campaign', 'traffic_safety', 'Keep this', 'both', 'draft', '2026-10-13')"
 )
-
-
-@pytest.fixture
-def migration_db(tmp_path, monkeypatch):
-    url = f"sqlite:///{(tmp_path / 'migration.db').as_posix()}"
-    monkeypatch.setattr(settings, "database_url", url)
-    config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
-    engine = create_engine(url)
-
-    @event.listens_for(engine, "connect")
-    def enable_foreign_keys(connection, _):
-        connection.execute("PRAGMA foreign_keys=ON")
-
-    try:
-        yield config, engine
-    finally:
-        engine.dispose()
 
 
 def test_generated_content_migration_preserves_existing_campaign(migration_db):

@@ -1,65 +1,9 @@
-import json
-
 import pytest
-from app.main import app
+
 from app.models.campaign import Campaign
 from app.models.generated_content import GeneratedContent
-from app.providers.gemini import get_text_provider
 from app.providers.text import GenerationError
-from app.schemas.generation import TextPackage
 from app.services import generation
-
-
-MARKETING_COPY = {
-    "english": {
-        "headline": "Cairo Bakery's weekend pastry box",
-        "slogan": "Make it a pastry weekend",
-        "awareness_message": "Order an assorted pastry box from Cairo Bakery for weekend pickup.",
-        "social_caption": "Planning the weekend? Pick up an assorted pastry box from Cairo Bakery.",
-        "call_to_action": "Order your pastry box for pickup.",
-    },
-    "arabic": {
-        "headline": "علبة معجنات الويك إند من كايرو بيكري",
-        "slogan": "خلّي الويك إند بطعم المعجنات",
-        "awareness_message": "اطلب علبة معجنات مشكلة من كايرو بيكري واستلمها في الويك إند.",
-        "social_caption": "بتخطط للويك إند؟ اطلب علبة معجنات مشكلة من كايرو بيكري.",
-        "call_to_action": "اطلب علبة المعجنات للاستلام.",
-    },
-}
-
-
-class FakeProvider:
-    provider_name = "fake"
-    model = "test-model"
-
-    def __init__(self):
-        self.calls = []
-        self.error = None
-        self.result = None
-
-    def generate(self, instructions, input_data, languages):
-        inputs = json.loads(input_data)
-        self.calls.append((instructions, inputs, languages))
-        if self.error:
-            raise self.error
-        if self.result is not None:
-            return self.result
-        if inputs.get("campaign_type") == "marketing":
-            return {language: TextPackage(**MARKETING_COPY[language]) for language in languages}
-        return {
-            language: TextPackage(**{
-                field: "اربط حزامك قبل ما تتحرك." if language == "arabic" else "Buckle up before setting off."
-                for field in TextPackage.model_fields
-            }) for language in languages
-        }
-
-
-@pytest.fixture
-def provider():
-    fake = FakeProvider()
-    app.dependency_overrides[get_text_provider] = lambda: fake
-    yield fake
-    app.dependency_overrides.pop(get_text_provider, None)
 
 
 def campaign(client, **changes):
@@ -169,7 +113,7 @@ def test_marketing_generation_uses_campaign_inputs_without_traffic_sources(clien
     assert "WHO" not in instructions
 
     for row in body["contents"]:
-        assert row["content"] == MARKETING_COPY[row["language"]]
+        assert row["content"] == provider.marketing_copy[row["language"]]
         assert row["review_status"] == "draft"
         assert row["source_references"] == []
         assert row["prompt_version"] == "marketing-text-v1"
@@ -359,8 +303,8 @@ def test_unsupported_marketing_draft_is_rejected_atomically(client, provider, of
     assert client.post(generation_url, json={}).status_code == 201
     history = client.get(f"{campaign_url}/contents").json()
     provider.result = {
-        **MARKETING_COPY,
-        "english": {**MARKETING_COPY["english"], "headline": headline},
+        **provider.marketing_copy,
+        "english": {**provider.marketing_copy["english"], "headline": headline},
     }
     response = client.post(generation_url, json={})
     assert response.status_code == 502
@@ -379,14 +323,14 @@ def test_marketing_accepts_supported_claims_and_ordinary_numbers(client, provide
     )
     provider.result = {
         "english": {
-            **MARKETING_COPY["english"],
+            **provider.marketing_copy["english"],
             "headline": "Weekend box for EGP 1250.50",
             "slogan": "10% off weekend boxes",
             "awareness_message": "Money-back guarantee. No lifetime warranty.",
             "social_caption": "Pickup at 10 am in a 100% cotton bag.",
         },
         "arabic": {
-            **MARKETING_COPY["arabic"],
+            **provider.marketing_copy["arabic"],
             "headline": "علبة الويك إند بـ ١٬٢٥٠٫٥٠ جنيه",
             "slogan": "خصم ١٠٪ على علب الويك إند",
             "awareness_message": "ضمان استرداد الفلوس",
