@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 
 from app.core.config import settings
 from app.core.database import Base
-from app.models import Campaign
+import app.models  # Register all models on Base.metadata.
 
 config.set_main_option(
     "sqlalchemy.url",
