@@ -12,6 +12,7 @@ import { useLanguage } from '../hooks/useLanguage'
 import StatusBadge from '../components/StatusBadge'
 import ContentPackage from '../components/ContentPackage'
 import CampaignForm from '../components/CampaignForm'
+import MarketingGeneration from '../components/MarketingGeneration'
 import type { Campaign, CampaignUpdate, GeneratedContent, GenerationTone } from '../types/api'
 import { campaignLanguageLabel, campaignTypeLabel } from '../utils/campaignForm'
 
@@ -125,7 +126,7 @@ export default function CampaignDetail() {
 
   const { data: contents, isLoading: ctLoading } = useQuery({
     queryKey: ['contents', id],
-    queryFn: () => listContents(id),
+    queryFn: ({ signal }) => listContents(id, undefined, undefined, signal),
     enabled: !!campaignId,
   })
 
@@ -223,56 +224,60 @@ export default function CampaignDetail() {
       </div>
 
       {/* Generate form */}
-      <div className="card">
-        <div className="card__header">
-          <h2 style={{ fontSize: 18 }}>{t('det.generate')}</h2>
-        </div>
-        <div className="card__body">
-          <div className="field">
-            <label htmlFor="audience">{t('det.audience')}</label>
-            <input
-              id="audience"
-              className="input"
-              value={audience}
-              maxLength={300}
-              placeholder={t('det.audienceHint')}
-              onChange={(e) => setAudience(e.target.value)}
-            />
+      {campaign.campaign_type === 'marketing' ? (
+        <MarketingGeneration key={campaign.id} campaign={campaign} />
+      ) : (
+        <div className="card">
+          <div className="card__header">
+            <h2 style={{ fontSize: 18 }}>{t('det.generate')}</h2>
           </div>
-          <div className="field">
-            <label htmlFor="tone">{t('det.tone')}</label>
-            <select
-              id="tone"
-              className="select"
-              value={tone}
-              onChange={(e) => setTone(e.target.value as GenerationTone)}
-              style={{ maxWidth: 240 }}
-            >
-              <option value="informative">{t('det.tone.informative')}</option>
-              <option value="encouraging">{t('det.tone.encouraging')}</option>
-              <option value="formal">{t('det.tone.formal')}</option>
-            </select>
-          </div>
+          <div className="card__body">
+            <div className="field">
+              <label htmlFor="audience">{t('det.audience')}</label>
+              <input
+                id="audience"
+                className="input"
+                value={audience}
+                maxLength={300}
+                placeholder={t('det.audienceHint')}
+                onChange={(e) => setAudience(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="tone">{t('det.tone')}</label>
+              <select
+                id="tone"
+                className="select"
+                value={tone}
+                onChange={(e) => setTone(e.target.value as GenerationTone)}
+                style={{ maxWidth: 240 }}
+              >
+                <option value="informative">{t('det.tone.informative')}</option>
+                <option value="encouraging">{t('det.tone.encouraging')}</option>
+                <option value="formal">{t('det.tone.formal')}</option>
+              </select>
+            </div>
 
-          {gen.isError && (
-            <p className="alert alert-error" style={{ marginBottom: 16 }}>
-              {gen.error instanceof Error ? gen.error.message : t('common.error')}
-            </p>
-          )}
+            {gen.isError && (
+              <p className="alert alert-error" style={{ marginBottom: 16 }}>
+                {gen.error instanceof Error ? gen.error.message : t('common.error')}
+              </p>
+            )}
 
-          <div className="form-actions">
-            <button
-              type="button"
-              className="btn btn-gold"
-              disabled={gen.isPending || audience.trim().length === 0}
-              onClick={() => gen.mutate()}
-            >
-              {gen.isPending ? t('det.generating') : t('det.generate')}
-            </button>
-            {gen.isPending && <span className="spinner" />}
+            <div className="form-actions">
+              <button
+                type="button"
+                className="btn btn-gold"
+                disabled={gen.isPending || audience.trim().length === 0}
+                onClick={() => gen.mutate()}
+              >
+                {gen.isPending ? t('det.generating') : t('det.generate')}
+              </button>
+              {gen.isPending && <span className="spinner" />}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Drafts */}
       {ctLoading ? (

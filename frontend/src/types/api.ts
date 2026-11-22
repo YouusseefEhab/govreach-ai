@@ -104,7 +104,7 @@ export interface SavedTextGeneration {
 }
 
 export interface TextGenerationRequest {
-  audience: string
+  audience?: string
   tone?: GenerationTone
 }
 

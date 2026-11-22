@@ -88,9 +88,11 @@ export function listContents(
   campaignId: number,
   skip = 0,
   limit = 100,
+  signal?: AbortSignal,
 ): Promise<GeneratedContent[]> {
   return request(
     `/api/v1/campaigns/${campaignId}/contents?skip=${skip}&limit=${limit}`,
+    { signal },
   )
 }
 
