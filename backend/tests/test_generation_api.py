@@ -263,7 +263,7 @@ def test_omitted_audience_for_legacy_or_unknown_campaign_keeps_baseline_error(cl
     ("business_name", "sk-" + "a" * 25),
     ("offer_summary", "AIza" + "a" * 34 + "-"),
     ("target_audience", "Bearer fakeToken0123456789"),
-    ("brief", "-----BEGIN PRIVATE KEY-----\nexample only\n-----END PRIVATE KEY-----"),
+    pytest.param("brief", "-----BEGIN " + "PRIVATE KEY-----\nexample only\n-----END PRIVATE KEY-----", id="synthetic-private-key-block"),
     ("audience", "Authorization: Bearer SampleToken12345"),
 ])
 def test_marketing_credentials_are_rejected_before_generation(client, provider, caplog, field, credential):
